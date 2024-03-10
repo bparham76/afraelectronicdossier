@@ -10,13 +10,13 @@ import AuthenticationSystem from './services/auth/AuthenticationSystem';
 const root = ReactDOM.createRoot(document.getElementById('afra_app'));
 root.render(
 	<React.StrictMode>
-		<RTL>
-			<Theme>
-				<AuthenticationSystem>
+		<AuthenticationSystem>
+			<RTL>
+				<Theme>
 					<App />
-				</AuthenticationSystem>
-			</Theme>
-		</RTL>
+				</Theme>
+			</RTL>
+		</AuthenticationSystem>
 	</React.StrictMode>
 );
 
