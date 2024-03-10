@@ -1,14 +1,27 @@
-const { SayBye, SayHello } = require('../services/auth');
+import { AuthMiddleware } from '../middlewares/auth.js';
+import {
+	createAccessToken,
+	createUser,
+	getUser,
+	modifyUser,
+	removeAccessToken,
+	removeUser,
+	validateSession,
+} from '../services/auth.js';
+import express from 'express';
 
-const express = require('express');
-const router = express.Router();
+const authRouter = express.Router();
 
-router.get('/test', (req, res) => {
-	res.json({ msg: 'test auth route' });
-});
+authRouter.post('/', createAccessToken);
 
-router.get('/hi', SayHello);
+authRouter.use('/', AuthMiddleware());
+authRouter.get('/', validateSession);
+authRouter.delete('/', removeAccessToken);
 
-router.get('/bye', SayBye);
+authRouter.use('/user', AuthMiddleware(['Doctor', 'Secretary']));
+authRouter.get('/user', getUser);
+authRouter.post('/user', createUser);
+authRouter.put('/user', modifyUser);
+authRouter.delete('/user', removeUser);
 
-module.exports = router;
+export default authRouter;
