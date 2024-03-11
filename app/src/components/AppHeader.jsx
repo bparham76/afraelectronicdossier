@@ -25,7 +25,7 @@ const AppHeader = ({ user }) => {
 	const handleCloseMenu = () => setMenuAnchor(null);
 
 	return (
-		<AppBar position='static'>
+		<AppBar position='sticky'>
 			<Container>
 				<Toolbar disableGutters>
 					<Avatar
