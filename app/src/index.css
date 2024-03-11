@@ -61,8 +61,10 @@
 	src: url('fonts/woff/YekanBakhFaNum-ExtraBlack.woff') format('woff'),
 		url('fonts/woff2/YekanBakhFaNum-ExtraBlack.woff2') format('woff2');
 }
-/* 
+
 html,
 body {
-	font-family: 'Yekan Bakh FaNum' !important;
-} */
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}

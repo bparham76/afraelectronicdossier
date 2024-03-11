@@ -1,13 +1,39 @@
 import { ThemeProvider, createTheme } from '@mui/material';
+import {
+	useState,
+	useMemo,
+	useCallback,
+	useContext,
+	createContext,
+} from 'react';
+
+const ThemeContext = createContext();
 
 const Theme = ({ children }) => {
-	const theme = createTheme({
-		typography: {
-			fontFamily: 'Yekan Bakh FaNum',
-		},
-	});
+	const [isDark, setIsDark] = useState(false);
 
-	return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
+	const theme = useMemo(
+		() =>
+			createTheme({
+				palette: {
+					mode: isDark ? 'dark' : 'light',
+				},
+				typography: {
+					fontFamily: 'Yekan Bakh FaNum',
+				},
+			}),
+		[isDark]
+	);
+
+	const toggleColorMode = useCallback(() => setIsDark(prev => !prev), []);
+
+	return (
+		<ThemeContext.Provider value={[isDark, toggleColorMode]}>
+			<ThemeProvider theme={theme}>{children}</ThemeProvider>
+		</ThemeContext.Provider>
+	);
 };
 
 export default Theme;
+
+export const useColorScheme = () => useContext(ThemeContext);

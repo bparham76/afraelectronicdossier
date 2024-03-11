@@ -34,17 +34,39 @@ export const useAuthState = () => useContext(AuthContext).isAuthenticated;
 export const useLogin = () => {
 	const { setToken, setIsAuthenticated } = useContext(AuthContext);
 
-	return async (username, password) => {
+	return async (username = '', password = '') => {
 		try {
 			const response = await axios.post('/auth', {
 				username: username,
 				password: password,
 			});
 
-			if (response.status < 400) {
+			if (response?.status < 400) {
 				setIsAuthenticated(true);
 				setToken(response?.data?.token);
 				sessionStorage.setItem('token', response?.data?.token);
+				return true;
+			} else return false;
+		} catch {
+			return false;
+		}
+	};
+};
+
+export const useLogout = () => {
+	const { token, setToken, setIsAuthenticated } = useContext(AuthContext);
+	return async () => {
+		try {
+			const response = await axios.delete('/auth', {
+				headers: {
+					Authorization: 'Bearer ' + token,
+				},
+			});
+
+			if (response?.status < 400) {
+				setIsAuthenticated(false);
+				setToken(null);
+				sessionStorage.removeItem('token');
 				return true;
 			} else return false;
 		} catch {
