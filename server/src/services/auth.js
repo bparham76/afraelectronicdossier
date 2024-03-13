@@ -12,7 +12,7 @@ export const createAccessToken = async (req, res) => {
 
 	const user = await prisma.user.findFirst({
 		where: { username: username, state: 'Active' },
-		select: { id: true, password: true },
+		select: { id: true, password: true, role: true },
 	});
 
 	if (!user) {
@@ -24,7 +24,7 @@ export const createAccessToken = async (req, res) => {
 			await prisma.accessToken.create({
 				data: { userId: user.id, hashed: bcrypt.hashSync(token, 10) },
 			});
-			res.status(200).json({ token: token });
+			res.status(200).json({ token: token, role: user.role });
 			return;
 		} else {
 			res.status(401).json();

@@ -6,12 +6,15 @@ const AuthContext = createContext();
 const AuthenticationSystem = ({ children }) => {
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
 	const [token, setToken] = useState(null);
+	const [role, setRole] = useState('');
 	const [canView, setCanView] = useState(false);
 
 	useEffect(() => {
 		const _token = sessionStorage.getItem('token');
-		if (typeof _token == 'string') {
+		const _role = sessionStorage.getItem('role');
+		if (typeof _token == 'string' && typeof _role == 'string') {
 			setToken(_token);
+			setRole(_role);
 			setIsAuthenticated(true);
 		}
 		setCanView(true);
@@ -21,7 +24,14 @@ const AuthenticationSystem = ({ children }) => {
 
 	return (
 		<AuthContext.Provider
-			value={{ isAuthenticated, token, setIsAuthenticated, setToken }}>
+			value={{
+				isAuthenticated,
+				token,
+				setIsAuthenticated,
+				setToken,
+				role,
+				setRole,
+			}}>
 			{children}
 		</AuthContext.Provider>
 	);
@@ -29,10 +39,13 @@ const AuthenticationSystem = ({ children }) => {
 
 export default AuthenticationSystem;
 
-export const useAuthState = () => useContext(AuthContext).isAuthenticated;
+export const useAuthState = () => {
+	const { isAuthenticated, role, token } = useContext(AuthContext);
+	return { isAuthenticated, role, token };
+};
 
 export const useLogin = () => {
-	const { setToken, setIsAuthenticated } = useContext(AuthContext);
+	const { setToken, setRole, setIsAuthenticated } = useContext(AuthContext);
 
 	return async (username = '', password = '') => {
 		try {
@@ -44,7 +57,9 @@ export const useLogin = () => {
 			if (response?.status < 400) {
 				setIsAuthenticated(true);
 				setToken(response?.data?.token);
+				setRole(response?.data?.role);
 				sessionStorage.setItem('token', response?.data?.token);
+				sessionStorage.setItem('role', response?.data?.role);
 				return true;
 			} else return false;
 		} catch {
@@ -54,7 +69,8 @@ export const useLogin = () => {
 };
 
 export const useLogout = () => {
-	const { token, setToken, setIsAuthenticated } = useContext(AuthContext);
+	const { token, setToken, setRole, setIsAuthenticated } =
+		useContext(AuthContext);
 	return async () => {
 		try {
 			const response = await axios.delete('/auth', {
@@ -66,7 +82,9 @@ export const useLogout = () => {
 			if (response?.status < 400) {
 				setIsAuthenticated(false);
 				setToken(null);
+				setRole(null);
 				sessionStorage.removeItem('token');
+				sessionStorage.removeItem('role');
 				return true;
 			} else return false;
 		} catch {
