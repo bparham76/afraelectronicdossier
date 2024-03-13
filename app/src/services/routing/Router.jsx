@@ -1,21 +1,51 @@
 import { useMemo } from 'react';
-import { Button, Container, Paper, Typography } from '@mui/material';
+import { Container, Paper } from '@mui/material';
 import AppHeader from '../../components/AppHeader';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import ErrorPage from '../../pages/ErrorPage';
+import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom';
+import { useAuthState } from '../auth/AuthenticationSystem';
+import { superAdminMenu, superAdminRoutes } from './SuperAdmin';
+import { doctorMenu, doctorRoutes } from './Doctor';
+import { secretaryMenu, secretaryRoutes } from './Secretary';
+import { adminMenu, adminRoutes } from './Admin';
 
 const Router = () => {
+	const { role } = useAuthState();
+
+	const menu = useMemo(
+		() =>
+			role === 'SuperAdmin'
+				? superAdminMenu
+				: role === 'Doctor'
+				? doctorMenu
+				: role === 'Secretary'
+				? secretaryMenu
+				: role === 'Admin' && adminMenu,
+		[]
+	);
+
 	const router = useMemo(
 		() =>
 			createBrowserRouter([
 				{
 					path: '/',
-					element: 'hello',
+					element: (
+						<>
+							<AppHeader menu={menu} />
+							<Container>
+								<Outlet />
+							</Container>
+						</>
+					),
+					children:
+						role === 'SuperAdmin'
+							? superAdminRoutes
+							: role === 'Doctor'
+							? doctorRoutes
+							: role === 'Secretary'
+							? secretaryRoutes
+							: role === 'Admin' && adminRoutes,
 					errorElement: <ErrorPage />,
-				},
-				{
-					path: 'test',
-					element: 'test page',
 				},
 			]),
 		[]
@@ -24,10 +54,7 @@ const Router = () => {
 	return (
 		<>
 			<Paper sx={{ borderRadius: 0, height: '100vh' }}>
-				<AppHeader />
-				<Container>
-					<RouterProvider router={router} />
-				</Container>
+				<RouterProvider router={router} />
 			</Paper>
 		</>
 	);

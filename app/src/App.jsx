@@ -4,7 +4,7 @@ import { useAuthState } from './services/auth/AuthenticationSystem';
 import Router from './services/routing/Router';
 
 function App() {
-	const isAuthenticated = useAuthState();
+	const { isAuthenticated } = useAuthState();
 
 	axios.defaults.baseURL =
 		document.querySelector('#afra_app')?.getAttribute('data-server') || '';

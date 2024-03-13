@@ -15,14 +15,16 @@ import { LightMode, DarkMode, Logout, Apps } from '@mui/icons-material';
 import AppIcon from '../maple-white.png';
 import { useLogout } from '../services/auth/AuthenticationSystem';
 import { useColorScheme } from './Theme';
+import { useNavigate } from 'react-router-dom';
 
-const AppHeader = ({ user }) => {
+const AppHeader = ({ user, menu }) => {
 	const commenceLogout = useLogout();
 	const [isDark, toggleColorScheme] = useColorScheme();
 	const [menuAnchor, setMenuAnchor] = useState(null);
 	const menuOpen = Boolean(menuAnchor);
 	const handleOpenMenu = e => setMenuAnchor(e.currentTarget);
 	const handleCloseMenu = () => setMenuAnchor(null);
+	const navigate = useNavigate();
 
 	return (
 		<AppBar position='sticky'>
@@ -58,10 +60,13 @@ const AppHeader = ({ user }) => {
 							open={menuOpen}
 							anchorEl={menuAnchor}
 							onClose={handleCloseMenu}>
-							<MenuItem>salam</MenuItem>
-							<MenuItem>salam</MenuItem>
-							<MenuItem>salam</MenuItem>
-							<MenuItem>salam</MenuItem>
+							{menu?.map((item, index) => (
+								<MenuItem
+									key={index}
+									onClick={() => navigate(item?.href)}>
+									{item?.title}
+								</MenuItem>
+							))}
 						</Menu>
 						<Tooltip title={isDark ? 'حالت روشن' : 'حالت تاریک'}>
 							<IconButton
