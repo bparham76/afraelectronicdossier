@@ -16,6 +16,7 @@ import AppIcon from '../maple-white.png';
 import { useLogout } from '../services/auth/AuthenticationSystem';
 import { useColorScheme } from './Theme';
 import { useNavigate } from 'react-router-dom';
+import appData from '../data/app.json';
 
 const AppHeader = ({ user, menu }) => {
 	const commenceLogout = useLogout();
@@ -26,19 +27,26 @@ const AppHeader = ({ user, menu }) => {
 	const handleCloseMenu = () => setMenuAnchor(null);
 	const navigate = useNavigate();
 
+	const goTo = href => {
+		navigate(href);
+		handleCloseMenu();
+	};
+
 	return (
 		<AppBar position='sticky'>
 			<Container>
 				<Toolbar disableGutters>
 					<Avatar
+						style={{ userSelect: 'none', cursor: 'default' }}
 						src={AppIcon}
-						alt='fuck'
+						alt={appData.fav_alt}
 					/>
 					<Typography
 						ml={2}
 						variant='h6'
+						style={{ cursor: 'default', userSelect: 'none' }}
 						noWrap>
-						سیستم پرونده الکترونیک افرا
+						{appData.app_name}
 					</Typography>
 					<Box
 						sx={{
@@ -63,7 +71,7 @@ const AppHeader = ({ user, menu }) => {
 							{menu?.map((item, index) => (
 								<MenuItem
 									key={index}
-									onClick={() => navigate(item?.href)}>
+									onClick={() => goTo(item?.href)}>
 									{item?.title}
 								</MenuItem>
 							))}

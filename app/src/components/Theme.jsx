@@ -10,7 +10,9 @@ import {
 const ThemeContext = createContext();
 
 const Theme = ({ children }) => {
-	const [isDark, setIsDark] = useState(false);
+	const [isDark, setIsDark] = useState(
+		sessionStorage.getItem('isDark') || false
+	);
 
 	const theme = useMemo(
 		() =>
@@ -25,7 +27,10 @@ const Theme = ({ children }) => {
 		[isDark]
 	);
 
-	const toggleColorMode = useCallback(() => setIsDark(prev => !prev), []);
+	const toggleColorMode = useCallback(() => {
+		setIsDark(prev => !prev);
+		sessionStorage.setItem('isDark', isDark);
+	}, []);
 
 	return (
 		<ThemeContext.Provider value={[isDark, toggleColorMode]}>

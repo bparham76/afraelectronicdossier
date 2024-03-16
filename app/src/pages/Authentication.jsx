@@ -9,6 +9,7 @@ import {
 	Snackbar,
 	Alert,
 	IconButton,
+	Fade,
 } from '@mui/material';
 import { useState, useEffect } from 'react';
 import {
@@ -61,54 +62,60 @@ const Authentication = () => {
 					خطا در اعتبار سنجی. مجددا امتحان کنید.
 				</Alert>
 			</Snackbar>
-			<Card
-				elevation={4}
-				sx={{ padding: 4, borderRadius: 4 }}>
-				<Box
-					sx={{
-						display: 'flex',
-						justifyContent: 'center',
-						padding: '1rem',
-						margin: 0,
-					}}>
-					<AdminPanelSettings
+
+			<Fade
+				in={true}
+				unmountOnExit>
+				<Card
+					elevation={4}
+					sx={{ padding: 4, borderRadius: 4 }}>
+					<Box
 						sx={{
-							fontSize: '6rem',
-						}}
-					/>
-				</Box>
-				<Typography
-					mb={4}
-					variant='h4'
-					fontWeight='bold'>
-					ورود به سیستم
-				</Typography>
-				<Stack gap={1}>
-					<TextField
-						value={username}
-						onChange={e => setUsername(e.target.value)}
-						size='small'
-						type='text'
-						label='نام کاربری'
-					/>
-					<TextField
-						value={password}
-						onChange={e => setPassword(e.target.value)}
-						size='small'
-						type='password'
-						label='رمز عبور'
-					/>
-					<Button
-						startIcon={<Login />}
-						disabled={
-							username.length === 0 || password.length === 0
-						}
-						onClick={() => setIsLoading(true)}
-						variant='contained'>
-						ورود
-					</Button>
-				</Stack>
-			</Card>
+							display: 'flex',
+							justifyContent: 'center',
+							padding: '1rem',
+							margin: 0,
+						}}>
+						<AdminPanelSettings
+							sx={{
+								fontSize: '6rem',
+							}}
+						/>
+					</Box>
+					<Typography
+						mb={4}
+						variant='h4'
+						fontWeight='bold'>
+						ورود به سیستم
+					</Typography>
+					<Stack gap={1}>
+						<TextField
+							value={username}
+							onChange={e => setUsername(e.target.value)}
+							size='small'
+							type='text'
+							label='نام کاربری'
+						/>
+						<TextField
+							value={password}
+							onChange={e => setPassword(e.target.value)}
+							size='small'
+							type='password'
+							label='رمز عبور'
+						/>
+						<Button
+							startIcon={<Login />}
+							disabled={
+								username.length === 0 || password.length === 0
+							}
+							onClick={() => setIsLoading(true)}
+							variant='contained'>
+							ورود
+						</Button>
+					</Stack>
+				</Card>
+			</Fade>
+
 			<IconButton
 				sx={{
 					position: 'fixed',

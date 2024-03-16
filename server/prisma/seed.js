@@ -9,7 +9,7 @@ const userData = [
 		lastName: 'باقی زاده',
 		username: 'super',
 		password: bcrypt.hashSync('1234', 10),
-		role: 'Admin',
+		role: 'SuperAdmin',
 		state: 'Active',
 	},
 ];

@@ -32,7 +32,11 @@ const Router = () => {
 					element: (
 						<>
 							<AppHeader menu={menu} />
-							<Container>
+							<Container
+								style={{
+									paddingTop: '1rem',
+									height: '90vh',
+								}}>
 								<Outlet />
 							</Container>
 						</>
@@ -53,7 +57,8 @@ const Router = () => {
 
 	return (
 		<>
-			<Paper sx={{ borderRadius: 0, height: '100vh' }}>
+			<Paper
+				sx={{ borderRadius: 0, height: '100vh', overflow: 'hidden' }}>
 				<RouterProvider router={router} />
 			</Paper>
 		</>

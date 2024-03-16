@@ -78,20 +78,44 @@ model Patient {
 }
 
 model Dossier {
-  id        Int          @id @default(autoincrement())
-  patient   Patient?     @relation(fields: [patientId], references: [id])
+  id        Int         @id @default(autoincrement())
+  patient   Patient?    @relation(fields: [patientId], references: [id])
   patientId Int
   address   String
   phone     String
   landLine  String
-  records   DrugRecord[]
+  drugType  DrugType
+  records   Reception[]
 }
 
-model DrugRecord {
+model Reception {
+  id        Int      @id @default(autoincrement())
+  datetime  DateTime @default(now())
+  Dossier   Dossier? @relation(fields: [dossierId], references: [id])
+  dossierId Int?
+  drugDose  Int
+}
+
+model Settings {
+  id               Int      @id @default(autoincrement())
+  appStartDateTime DateTime
+  baseDateTime     DateTime
+  activeState      Boolean  @default(true)
+}
+
+model Storage {
+  id           Int           @id @default(autoincrement())
+  drug         DrugType
+  quantiry     Int
+  transactions Transaction[]
+}
+
+model Transaction {
   id         Int      @id @default(autoincrement())
-  drugTypeID Int
-  drugType   DrugType
-  datetime   DateTime @default(now())
-  Dossier    Dossier? @relation(fields: [dossierId], references: [id])
-  dossierId  Int?
+  date       DateTime
+  drug       DrugType
+  amount     Int
+  prevAmount Int
+  Storage    Storage? @relation(fields: [storageId], references: [id])
+  storageId  Int?
 }
