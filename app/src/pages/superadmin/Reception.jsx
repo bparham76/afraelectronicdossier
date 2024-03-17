@@ -1,5 +1,5 @@
-import { Fade, Typography, Grid, Button } from '@mui/material';
-import { Home } from '@mui/icons-material';
+import { Fade, Typography, Grid, Button, Box } from '@mui/material';
+import { Home, Add, Search } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 const Reception = () => {
@@ -13,31 +13,40 @@ const Reception = () => {
 				container
 				spacing={4}>
 				<Grid
-					item
 					sx={{ display: 'flex', justifyContent: 'space-between' }}
+					item
 					xs={12}>
 					<Typography
 						variant='h4'
 						fontWeight='bold'>
-						مراجعات
+						پرونده ها
 					</Typography>
-					<Button
-						onClick={() => navigate('/')}
-						size='small'
-						variant='outlined'
-						startIcon={<Home />}>
-						صفحه اصلی
-					</Button>
+					<Box sx={{ display: 'flex', gap: 2 }}>
+						<Button
+							size='small'
+							variant='outlined'
+							startIcon={<Add />}>
+							افزودن
+						</Button>
+						<Button
+							size='small'
+							variant='outlined'
+							startIcon={<Search />}>
+							جستجو
+						</Button>
+						<Button
+							onClick={() => navigate('/')}
+							size='small'
+							variant='outlined'
+							startIcon={<Home />}>
+							صفحه اصلی
+						</Button>
+					</Box>
 				</Grid>
 				<Grid
 					item
-					xs={6}>
-					salam
-				</Grid>
-				<Grid
-					item
-					xs={6}>
-					khubi
+					xs={12}>
+					Reception List
 				</Grid>
 			</Grid>
 		</Fade>
