@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import SearchBox from '../../components/SearchBox';
 import LoadingOverlay from '../../components/LoadingOverlay';
+import DataTable from '../../components/DataTable';
 
 const Patients = () => {
 	const navigate = useNavigate();
@@ -16,6 +17,40 @@ const Patients = () => {
 		alert(searchString);
 		setIsLoading(true);
 	};
+
+	const gridHeader = [
+		{
+			field: 'id',
+			headerName: 'ردیف',
+			width: (1 / 6) * 1000,
+		},
+		{
+			field: 'nationalId',
+			headerName: 'شماره ملی',
+			width: (1 / 6) * 1000,
+		},
+		{
+			field: 'firstName',
+			headerName: 'نام',
+			width: (1 / 6) * 1000,
+		},
+		,
+		{
+			field: 'lastName',
+			headerName: 'نام خانوادگی',
+			width: (1 / 6) * 1000,
+		},
+		{
+			field: 'gender',
+			headerName: 'جنسیت',
+			width: (1 / 6) * 1000,
+		},
+		{
+			field: 'birthDate',
+			headerName: 'تاریخ تولد',
+			width: (1 / 6) * 1000,
+		},
+	];
 
 	return (
 		<>
@@ -72,7 +107,7 @@ const Patients = () => {
 					<Grid
 						item
 						xs={12}>
-						Patient List
+						<DataTable header={gridHeader} />
 					</Grid>
 				</Grid>
 			</Fade>

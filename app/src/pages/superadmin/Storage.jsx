@@ -1,5 +1,5 @@
-import { Fade, Typography, Grid, Button } from '@mui/material';
-import { Home } from '@mui/icons-material';
+import { Fade, Typography, Grid, Box, Button } from '@mui/material';
+import { Home, Add, ViewComfy } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 const Storage = () => {
@@ -21,13 +21,27 @@ const Storage = () => {
 						fontWeight='bold'>
 						انبار
 					</Typography>
-					<Button
-						onClick={() => navigate('/')}
-						size='small'
-						variant='outlined'
-						startIcon={<Home />}>
-						صفحه اصلی
-					</Button>
+					<Box sx={{ display: 'flex', gap: 2 }}>
+						<Button
+							size='small'
+							variant='outlined'
+							startIcon={<ViewComfy />}>
+							گزارشات
+						</Button>
+						<Button
+							size='small'
+							variant='outlined'
+							startIcon={<Add />}>
+							افزودن موجودی
+						</Button>
+						<Button
+							onClick={() => navigate('/')}
+							size='small'
+							variant='outlined'
+							startIcon={<Home />}>
+							صفحه اصلی
+						</Button>
+					</Box>
 				</Grid>
 				<Grid
 					item

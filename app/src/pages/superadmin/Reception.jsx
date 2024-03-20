@@ -1,10 +1,34 @@
 import { Fade, Typography, Grid, Button, Box } from '@mui/material';
 import { Home, Add, Search } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import DataTable from '../../components/DataTable';
 
 const Reception = () => {
 	const navigate = useNavigate();
 
+	const gridHeader = [
+		{
+			field: 'id',
+			headerName: 'ردیف',
+			width: (1 / 4) * 1000,
+		},
+		{
+			field: 'patientName',
+			headerName: 'نام بیمار',
+			width: (1 / 4) * 1000,
+		},
+		{
+			field: 'dateTime',
+			headerName: 'تاریخ',
+			width: (1 / 4) * 1000,
+		},
+		,
+		{
+			field: 'state',
+			headerName: 'وضعیت',
+			width: (1 / 4) * 1000,
+		},
+	];
 	return (
 		<Fade
 			in={true}
@@ -19,7 +43,7 @@ const Reception = () => {
 					<Typography
 						variant='h4'
 						fontWeight='bold'>
-						پرونده ها
+						مراجعات
 					</Typography>
 					<Box sx={{ display: 'flex', gap: 2 }}>
 						<Button
@@ -46,7 +70,7 @@ const Reception = () => {
 				<Grid
 					item
 					xs={12}>
-					Reception List
+					<DataTable header={gridHeader} />
 				</Grid>
 			</Grid>
 		</Fade>
