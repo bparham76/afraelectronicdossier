@@ -1,12 +1,13 @@
 import { Fade, Typography, Grid, Button, Box } from '@mui/material';
 import { Home, Add, Search } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import DataTable from '../components/DataTable';
+import SearchBox from '../components/SearchBox';
+import LoadingOverlay from '../components/LoadingOverlay';
 import { useState } from 'react';
-import SearchBox from '../../components/SearchBox';
-import LoadingOverlay from '../../components/LoadingOverlay';
-import DataTable from '../../components/DataTable';
+import SearchByDate from '../components/SearchByDate';
 
-const Patients = () => {
+const Receptions = () => {
 	const navigate = useNavigate();
 	const [isLoading, setIsLoading] = useState(false);
 	const [searchString, setSearchString] = useState('');
@@ -22,47 +23,39 @@ const Patients = () => {
 		{
 			field: 'id',
 			headerName: 'ردیف',
-			width: (1 / 6) * 1000,
+			width: 100,
 		},
 		{
-			field: 'nationalId',
-			headerName: 'شماره ملی',
-			width: (1 / 6) * 1000,
+			field: 'dateTime',
+			headerName: 'تاریخ',
+			width: 200,
 		},
 		{
-			field: 'firstName',
-			headerName: 'نام',
-			width: (1 / 6) * 1000,
+			field: 'patientName',
+			headerName: 'نام بیمار',
+			width: 200,
 		},
 		,
 		{
-			field: 'lastName',
-			headerName: 'نام خانوادگی',
-			width: (1 / 6) * 1000,
-		},
-		{
-			field: 'gender',
-			headerName: 'جنسیت',
-			width: (1 / 6) * 1000,
-		},
-		{
-			field: 'birthDate',
-			headerName: 'تاریخ تولد',
-			width: (1 / 6) * 1000,
+			field: 'drugDose',
+			headerName: 'مقدار تجویز',
+			width: 200,
 		},
 	];
-
 	return (
 		<>
-			<SearchBox
+			<SearchByDate
+				open={showSearchDialog}
+				onClose={handleHideSearch}
+			/>
+			{/* <SearchBox
 				onCommit={handleCommitSearch}
 				open={showSearchDialog}
 				onClose={handleHideSearch}
 				search={searchString}
 				onChange={setSearchString}
-				content='
-						جستجو بر اساس کد ملی و نام بیمار'
-			/>
+				content='جستجوی مراجعات'
+			/> */}
 			<Fade
 				in={true}
 				unmountOnExit>
@@ -70,19 +63,20 @@ const Patients = () => {
 					container
 					spacing={4}>
 					<Grid
-						item
 						sx={{
 							display: 'flex',
 							justifyContent: 'space-between',
 						}}
+						item
 						xs={12}>
 						<Typography
 							variant='h4'
 							fontWeight='bold'>
-							بیماران
+							مراجعات
 						</Typography>
 						<Box sx={{ display: 'flex', gap: 2 }}>
 							<Button
+								onClick={() => navigate('/reception/new')}
 								size='small'
 								variant='outlined'
 								startIcon={<Add />}>
@@ -116,4 +110,4 @@ const Patients = () => {
 	);
 };
 
-export default Patients;
+export default Receptions;

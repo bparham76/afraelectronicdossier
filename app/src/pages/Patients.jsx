@@ -1,14 +1,13 @@
-import { Fade, Grid, Typography, Button, Box } from '@mui/material';
+import { Fade, Typography, Grid, Button, Box } from '@mui/material';
 import { Home, Add, Search } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import SearchBox from '../../components/SearchBox';
-import LoadingOverlay from '../../components/LoadingOverlay';
-import DataTable from '../../components/DataTable';
+import SearchBox from '../components/SearchBox';
+import LoadingOverlay from '../components/LoadingOverlay';
+import DataTable from '../components/DataTable';
 
-const Dossiers = () => {
+const Patients = () => {
 	const navigate = useNavigate();
-	const [dataList, setDataList] = useState(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [searchString, setSearchString] = useState('');
 	const [showSearchDialog, setShowSearchDialog] = useState(false);
@@ -23,39 +22,36 @@ const Dossiers = () => {
 		{
 			field: 'id',
 			headerName: 'ردیف',
-			width: (1 / 4) * 1000,
+			width: 100,
+		},
+		{
+			field: 'nationalId',
+			headerName: 'شماره ملی',
+			width: 200,
 		},
 		{
 			field: 'firstName',
 			headerName: 'نام',
-			width: (1 / 4) * 1000,
+			width: 200,
 		},
 		,
 		{
 			field: 'lastName',
 			headerName: 'نام خانوادگی',
-			width: (1 / 4) * 1000,
+			width: 200,
 		},
 		{
-			field: 'drugType',
-			headerName: 'نوع مصرف',
-			width: (1 / 4) * 1000,
+			field: 'gender',
+			headerName: 'جنسیت',
+			width: 200,
+		},
+		{
+			field: 'phone',
+			headerName: 'تلفن همراه',
+			width: 200,
 		},
 	];
-	const data = [
-		{
-			id: 1,
-			firstName: 'عزیز اله',
-			lastName: 'رجب نیا',
-			drugType: 'متادون',
-		},
-		{
-			id: 2,
-			firstName: 'اکبر',
-			lastName: 'رمضانی',
-			drugType: 'اوپیوم',
-		},
-	];
+
 	return (
 		<>
 			<SearchBox
@@ -65,8 +61,7 @@ const Dossiers = () => {
 				search={searchString}
 				onChange={setSearchString}
 				content='
-						جستجو بر اساس شماره پرونده، کد ملی، تلفن همراه و نام
-						بیمار'
+						جستجو بر اساس کد ملی و نام بیمار'
 			/>
 			<Fade
 				in={true}
@@ -75,19 +70,20 @@ const Dossiers = () => {
 					container
 					spacing={4}>
 					<Grid
+						item
 						sx={{
 							display: 'flex',
 							justifyContent: 'space-between',
 						}}
-						item
 						xs={12}>
 						<Typography
 							variant='h4'
 							fontWeight='bold'>
-							پرونده ها
+							بیماران
 						</Typography>
 						<Box sx={{ display: 'flex', gap: 2 }}>
 							<Button
+								onClick={() => navigate('/patient/new')}
 								size='small'
 								variant='outlined'
 								startIcon={<Add />}>
@@ -112,10 +108,7 @@ const Dossiers = () => {
 					<Grid
 						item
 						xs={12}>
-						<DataTable
-							header={gridHeader}
-							data={data}
-						/>
+						<DataTable header={gridHeader} />
 					</Grid>
 				</Grid>
 			</Fade>
@@ -124,4 +117,4 @@ const Dossiers = () => {
 	);
 };
 
-export default Dossiers;
+export default Patients;

@@ -33,7 +33,7 @@ enum UserRole {
   SuperAdmin
 }
 
-enum UserState {
+enum Status {
   Active
   Suspended
 }
@@ -50,7 +50,7 @@ model User {
   username    String        @unique
   password    String
   role        UserRole
-  state       UserState
+  state       Status
   AccessToken AccessToken[]
 }
 
@@ -67,55 +67,72 @@ enum DrugType {
   Metadon
 }
 
+enum StoreStatus {
+  normal
+  hidden
+  removed
+}
+
 model Patient {
-  id         Int       @id @default(autoincrement())
+  id         Int         @id @default(autoincrement())
   firstName  String
   lastName   String
   birthDate  DateTime
   nationalID String
+  address    String
+  phone      String
+  landLine   String
   gender     Gender
   Dossier    Dossier[]
+  storeState StoreStatus @default(normal)
+}
+
+model Attachment {
+  id          Int         @id @default(autoincrement())
+  title       String
+  fileAddress String
+  Dossier     Dossier?    @relation(fields: [dossierId], references: [id])
+  dossierId   Int?
+  storeState  StoreStatus @default(normal)
 }
 
 model Dossier {
-  id        Int         @id @default(autoincrement())
-  patient   Patient?    @relation(fields: [patientId], references: [id])
-  patientId Int
-  address   String
-  phone     String
-  landLine  String
-  drugType  DrugType
-  records   Reception[]
+  id          Int          @id @default(autoincrement())
+  patient     Patient?     @relation(fields: [patientId], references: [id])
+  patientId   Int
+  drugType    DrugType
+  state       Status
+  records     Reception[]
+  attachments Attachment[]
+  storeState  StoreStatus  @default(normal)
 }
 
 model Reception {
-  id        Int      @id @default(autoincrement())
-  datetime  DateTime @default(now())
-  Dossier   Dossier? @relation(fields: [dossierId], references: [id])
-  dossierId Int?
-  drugDose  Int
+  id         Int         @id @default(autoincrement())
+  datetime   DateTime    @default(now())
+  Dossier    Dossier?    @relation(fields: [dossierId], references: [id])
+  dossierId  Int?
+  drugDose   Int
+  storeState StoreStatus @default(normal)
 }
 
 model Settings {
-  id               Int      @id @default(autoincrement())
-  appStartDateTime DateTime
-  baseDateTime     DateTime
-  activeState      Boolean  @default(true)
+  id    Int     @id @default(autoincrement())
+  name  String
+  value String?
 }
 
 model Storage {
-  id           Int           @id @default(autoincrement())
-  drug         DrugType
-  quantiry     Int
-  transactions Transaction[]
+  id       Int      @id @default(autoincrement())
+  drug     DrugType
+  quantity Int
 }
 
-model Transaction {
+model StorageTransaction {
   id         Int      @id @default(autoincrement())
   date       DateTime
   drug       DrugType
-  amount     Int
+  quantity   Int
   prevAmount Int
-  Storage    Storage? @relation(fields: [storageId], references: [id])
-  storageId  Int?
+  currAmount Int
 }

@@ -1,34 +1,29 @@
-import { Fade, Typography, Grid, Button, Box } from '@mui/material';
-import { Home, Add, Search } from '@mui/icons-material';
+import { Fade, Typography, Grid, Box, Button } from '@mui/material';
+import { Home, Add, ViewComfy } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import DataTable from '../../components/DataTable';
+import DataTable from '../components/DataTable';
 
-const Reception = () => {
+const Storage = () => {
 	const navigate = useNavigate();
-
 	const gridHeader = [
 		{
 			field: 'id',
 			headerName: 'ردیف',
-			width: (1 / 4) * 1000,
+			width: 100,
 		},
 		{
-			field: 'patientName',
-			headerName: 'نام بیمار',
-			width: (1 / 4) * 1000,
-		},
-		{
-			field: 'dateTime',
-			headerName: 'تاریخ',
-			width: (1 / 4) * 1000,
+			field: 'drugType',
+			headerName: 'نوع دارو',
+			width: 200,
 		},
 		,
 		{
-			field: 'state',
-			headerName: 'وضعیت',
-			width: (1 / 4) * 1000,
+			field: 'amount',
+			headerName: 'موجودی',
+			width: 200,
 		},
 	];
+
 	return (
 		<Fade
 			in={true}
@@ -37,26 +32,28 @@ const Reception = () => {
 				container
 				spacing={4}>
 				<Grid
-					sx={{ display: 'flex', justifyContent: 'space-between' }}
 					item
+					sx={{ display: 'flex', justifyContent: 'space-between' }}
 					xs={12}>
 					<Typography
 						variant='h4'
 						fontWeight='bold'>
-						مراجعات
+						انبار
 					</Typography>
 					<Box sx={{ display: 'flex', gap: 2 }}>
 						<Button
+							onClick={() => navigate('/storage/report')}
+							size='small'
+							variant='outlined'
+							startIcon={<ViewComfy />}>
+							گزارشات
+						</Button>
+						<Button
+							onClick={() => navigate('/storage/entry')}
 							size='small'
 							variant='outlined'
 							startIcon={<Add />}>
-							افزودن
-						</Button>
-						<Button
-							size='small'
-							variant='outlined'
-							startIcon={<Search />}>
-							جستجو
+							افزودن موجودی
 						</Button>
 						<Button
 							onClick={() => navigate('/')}
@@ -77,4 +74,4 @@ const Reception = () => {
 	);
 };
 
-export default Reception;
+export default Storage;

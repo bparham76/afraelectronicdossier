@@ -1,14 +1,15 @@
 import { Box } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 
-import React from 'react';
-
-const DataTable = ({ header = null, data = [] }) => {
+const DataTable = ({ header = null, data = [], height = null, onRowClick }) => {
 	if (!header) return;
 
 	return (
-		<Box sx={{ height: '70vh', width: '100%' }}>
+		<Box sx={{ height: height ? height : '70vh', width: '100%' }}>
 			<DataGrid
+				onRowClick={e =>
+					typeof onRowClick === 'function' && onRowClick(e)
+				}
 				columns={header}
 				rows={data}
 				localeText={{
