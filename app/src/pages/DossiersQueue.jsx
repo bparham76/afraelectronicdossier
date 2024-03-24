@@ -1,4 +1,4 @@
-import { Fade, Grid, Typography, Button, Box } from '@mui/material';
+import { Fade, Grid, Typography, Button, ButtonGroup } from '@mui/material';
 import { Home, Search, Inventory } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
@@ -22,7 +22,7 @@ const DossiersQueue = () => {
 	const gridHeader = [
 		{
 			field: 'id',
-			headerName: 'ردیف',
+			headerName: 'شماره',
 			width: 100,
 		},
 		{
@@ -73,7 +73,7 @@ const DossiersQueue = () => {
 							fontWeight='bold'>
 							پرونده های در صف تشکیل
 						</Typography>
-						<Box sx={{ display: 'flex', gap: 2 }}>
+						<ButtonGroup>
 							<Button
 								onClick={handleShowSearch}
 								size='small'
@@ -95,7 +95,7 @@ const DossiersQueue = () => {
 								startIcon={<Home />}>
 								صفحه اصلی
 							</Button>
-						</Box>
+						</ButtonGroup>
 					</Grid>
 					<Grid
 						item

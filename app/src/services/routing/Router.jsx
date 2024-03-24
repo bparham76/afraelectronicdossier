@@ -8,6 +8,7 @@ import { superAdminMenu, superAdminRoutes } from './SuperAdmin';
 import { doctorMenu, doctorRoutes } from './Doctor';
 import { secretaryMenu, secretaryRoutes } from './Secretary';
 import { adminMenu, adminRoutes } from './Admin';
+import NotificationSystem from '../NotificationSystem';
 
 const Router = () => {
 	const { role } = useAuthState();
@@ -37,7 +38,9 @@ const Router = () => {
 									paddingTop: '1rem',
 									height: '90vh',
 								}}>
-								<Outlet />
+								<NotificationSystem>
+									<Outlet />
+								</NotificationSystem>
 							</Container>
 						</>
 					),

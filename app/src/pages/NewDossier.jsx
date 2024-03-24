@@ -11,11 +11,119 @@ import {
 	Autocomplete,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useAuthState } from '../services/auth/AuthenticationSystem';
+import axios from 'axios';
 
 const NewDossier = () => {
 	const navigate = useNavigate();
+	const { token } = useAuthState();
+	const [isLoading, setIsLoading] = useState(false);
+	const [patientList, setPatientList] = useState([
+		{
+			label: 'برای جستجو عبارتی وارد کنید',
+			id: -1,
+		},
+	]);
+	const [searchString, setSearchString] = useState('');
+
 	const [isCapacityFull, setIsCapacityFull] = useState(false);
+
+	const search = useCallback(() => {
+		if (searchString.trim().length == 0) {
+			setPatientList([
+				{
+					label: 'برای جستجو عبارتی وارد کنید',
+					id: -1,
+				},
+			]);
+			return;
+		}
+
+		setIsLoading(true);
+
+		const exec = async () => {
+			try {
+				const response = await axios.get(
+					'/patient/s/s/' + searchString,
+					{
+						headers: {
+							Authorization: 'Bearer ' + token,
+						},
+					}
+				);
+				if (response.status < 300) {
+					const tmp = response.data.data.map(item => ({
+						label:
+							item.firstName +
+							' ' +
+							item.lastName +
+							' - ' +
+							item.nationalID,
+						id: item.id,
+					}));
+					setPatientList(tmp);
+				}
+			} catch {
+				setPatientList([
+					{
+						label: 'برای جستجو عبارتی وارد کنید',
+						id: -1,
+					},
+				]);
+			} finally {
+				setIsLoading(false);
+			}
+		};
+
+		setTimeout(exec, 1000);
+	}, [searchString]);
+
+	useEffect(search, [searchString]);
+
+	// useEffect(() => {
+	// 	if (searchString.trim().length < 3) {
+	// 		setPatientList([
+	// 			{
+	// 				label: 'برای جستجو عبارتی وارد کنید',
+	// 				id: -1,
+	// 			},
+	// 		]);
+	// 		return;
+	// 	}
+
+	// 	const exec = async () => {
+	// 		try {
+	// 			const response = await axios.get(
+	// 				'/patient/s/s/' + searchString,
+	// 				{
+	// 					headers: {
+	// 						Authorization: 'Bearer ' + token,
+	// 					},
+	// 				}
+	// 			);
+	// 			if (response.status < 300) {
+	// 				const tmp = response.data.data.map(item => ({
+	// 					label: item.firstName + ' ' + item.lastName,
+	// 					id: item.id,
+	// 				}));
+	// 				setPatientList(tmp);
+	// 			}
+	// 		} catch {
+	// 			setPatientList([
+	// 				{
+	// 					label: 'برای جستجو عبارتی وارد کنید',
+	// 					id: -1,
+	// 				},
+	// 			]);
+	// 		} finally {
+	// 			setIsLoading(false);
+	// 		}
+	// 	};
+
+	// 	exec();
+	// }, [searchString]);
+
 	return (
 		<Fade
 			in={true}
@@ -34,45 +142,32 @@ const NewDossier = () => {
 						flexDirection: 'column',
 					}}>
 					<Typography variant='h4'>پرونده جدید</Typography>
-					{/* <TextField
-						size='small'
-						label='کد بیمار'
-						variant='outlined'
-					/> */}
 					<Autocomplete
 						size='small'
-						options={[
-							{ label: 'برای جستجو عبارتی وارد کنید', id: -1 },
-						]}
+						onClose={() =>
+							setPatientList([
+								{
+									label: 'برای جستجو عبارتی وارد کنید',
+									id: -1,
+								},
+							])
+						}
+						options={patientList}
 						getOptionDisabled={option => option.id === -1}
-						loading={false}
+						loading={isLoading}
 						loadingText='در حال جستجو...'
 						noOptionsText='موردی یافت نشد.'
 						renderInput={params => (
 							<TextField
+								onChange={e => {
+									setSearchString(e.target.value);
+								}}
+								value={searchString}
 								{...params}
 								label='انتخاب بیمار'
 							/>
 						)}
 					/>
-					{/* <TextField
-						size='small'
-						label='تلفن همراه'
-						variant='outlined'
-					/>
-					<TextField
-						size='small'
-						label='تلفن ثابت'
-						variant='outlined'
-					/>
-					<TextField
-						multiline
-						rows={4}
-						maxRows={4}
-						size='small'
-						label='نشانی محل سکونت'
-						variant='outlined'
-					/> */}
 					<Select
 						onChange={e =>
 							e.target.value == 1

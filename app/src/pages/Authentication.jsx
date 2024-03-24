@@ -62,7 +62,6 @@ const Authentication = () => {
 					خطا در اعتبار سنجی. مجددا امتحان کنید.
 				</Alert>
 			</Snackbar>
-
 			<Fade
 				in={true}
 				unmountOnExit>

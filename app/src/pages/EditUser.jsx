@@ -1,7 +1,8 @@
-import React from 'react';
+import { useParams } from 'react-router-dom';
 
 const EditUser = () => {
-	return <div>EditUser</div>;
+	const { id } = useParams();
+	return <div>EditUser {id}</div>;
 };
 
 export default EditUser;

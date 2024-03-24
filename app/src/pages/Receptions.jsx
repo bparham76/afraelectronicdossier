@@ -1,8 +1,7 @@
-import { Fade, Typography, Grid, Button, Box } from '@mui/material';
+import { Fade, Typography, Grid, Button, ButtonGroup } from '@mui/material';
 import { Home, Add, Search } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import DataTable from '../components/DataTable';
-import SearchBox from '../components/SearchBox';
 import LoadingOverlay from '../components/LoadingOverlay';
 import { useState } from 'react';
 import SearchByDate from '../components/SearchByDate';
@@ -22,7 +21,7 @@ const Receptions = () => {
 	const gridHeader = [
 		{
 			field: 'id',
-			headerName: 'ردیف',
+			headerName: 'شماره',
 			width: 100,
 		},
 		{
@@ -48,14 +47,6 @@ const Receptions = () => {
 				open={showSearchDialog}
 				onClose={handleHideSearch}
 			/>
-			{/* <SearchBox
-				onCommit={handleCommitSearch}
-				open={showSearchDialog}
-				onClose={handleHideSearch}
-				search={searchString}
-				onChange={setSearchString}
-				content='جستجوی مراجعات'
-			/> */}
 			<Fade
 				in={true}
 				unmountOnExit>
@@ -74,7 +65,7 @@ const Receptions = () => {
 							fontWeight='bold'>
 							مراجعات
 						</Typography>
-						<Box sx={{ display: 'flex', gap: 2 }}>
+						<ButtonGroup>
 							<Button
 								onClick={() => navigate('/reception/new')}
 								size='small'
@@ -96,7 +87,7 @@ const Receptions = () => {
 								startIcon={<Home />}>
 								صفحه اصلی
 							</Button>
-						</Box>
+						</ButtonGroup>
 					</Grid>
 					<Grid
 						item

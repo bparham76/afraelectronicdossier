@@ -42,10 +42,45 @@ export const validateSession = (req, res) => {
 	res.json({ user: req.user });
 };
 
-export const createUser = async (req, res) => {};
+export const createUser = async (req, res) => {
+	try {
+		const { data } = req?.body;
+		await prisma.user.create({
+			data: { ...data, password: bcrypt.hashSync(data.password, 10) },
+		});
+		res.status(201).json();
+		return;
+	} catch (e) {
+		res.status(500).json({ err: e });
+		return;
+	}
+};
 
 export const getUser = async (req, res) => {
 	res.json({ msg: 'get user' });
+};
+
+export const getAllUsers = async (req, res) => {
+	try {
+		const data = await prisma.user.findMany({
+			select: {
+				id: true,
+				firstName: true,
+				lastName: true,
+				username: true,
+				role: true,
+				state: true,
+			},
+			orderBy: {
+				id: 'desc',
+			},
+		});
+		res.status(201).json({ data: data });
+		return;
+	} catch (e) {
+		res.status(500).json({ err: e });
+		return;
+	}
 };
 
 export const modifyUser = async (req, res) => {};

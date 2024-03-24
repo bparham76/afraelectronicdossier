@@ -1,4 +1,11 @@
-import { Fade, Typography, Grid, Box, Button } from '@mui/material';
+import {
+	Fade,
+	Typography,
+	Grid,
+	Box,
+	Button,
+	ButtonGroup,
+} from '@mui/material';
 import { Home, Add, ViewComfy } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import DataTable from '../components/DataTable';
@@ -8,7 +15,7 @@ const Storage = () => {
 	const gridHeader = [
 		{
 			field: 'id',
-			headerName: 'ردیف',
+			headerName: 'شماره',
 			width: 100,
 		},
 		{
@@ -40,7 +47,7 @@ const Storage = () => {
 						fontWeight='bold'>
 						انبار
 					</Typography>
-					<Box sx={{ display: 'flex', gap: 2 }}>
+					<ButtonGroup>
 						<Button
 							onClick={() => navigate('/storage/report')}
 							size='small'
@@ -62,7 +69,7 @@ const Storage = () => {
 							startIcon={<Home />}>
 							صفحه اصلی
 						</Button>
-					</Box>
+					</ButtonGroup>
 				</Grid>
 				<Grid
 					item

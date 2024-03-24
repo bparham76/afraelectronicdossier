@@ -1,31 +1,41 @@
-import { Fade, Typography, Grid, Button, Box } from '@mui/material';
-import { Home, Add, Search } from '@mui/icons-material';
+import { Fade, Typography, Grid, Button, ButtonGroup } from '@mui/material';
+import { Home, Add, Search, Close } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import SearchBox from '../components/SearchBox';
 import LoadingOverlay from '../components/LoadingOverlay';
 import DataTable from '../components/DataTable';
+import { useNotify } from '../services/NotificationSystem';
+import axios from 'axios';
+import { useAuthState } from '../services/auth/AuthenticationSystem';
 
 const Patients = () => {
 	const navigate = useNavigate();
-	const [isLoading, setIsLoading] = useState(false);
+	const notify = useNotify();
+	const { token } = useAuthState();
+	const [patientList, setPatientList] = useState([]);
+	const [isLoading, setIsLoading] = useState(true);
+	const [isSearch, setIsSearch] = useState(false);
 	const [searchString, setSearchString] = useState('');
 	const [showSearchDialog, setShowSearchDialog] = useState(false);
-	const handleShowSearch = () => setShowSearchDialog(true);
-	const handleHideSearch = () => setShowSearchDialog(false);
-	const handleCommitSearch = () => {
-		alert(searchString);
-		setIsLoading(true);
+	const handleShowSearch = () => {
+		if (searchString.trim() !== '') {
+			setSearchString('');
+			setIsLoading(true);
+			setIsSearch(false);
+		} else setShowSearchDialog(true);
 	};
+	const handleHideSearch = () => setShowSearchDialog(false);
+	const handleCommitSearch = () => setIsLoading(true);
 
 	const gridHeader = [
 		{
 			field: 'id',
-			headerName: 'ردیف',
+			headerName: 'شماره',
 			width: 100,
 		},
 		{
-			field: 'nationalId',
+			field: 'nationalID',
 			headerName: 'شماره ملی',
 			width: 200,
 		},
@@ -44,6 +54,7 @@ const Patients = () => {
 			field: 'gender',
 			headerName: 'جنسیت',
 			width: 200,
+			valueGetter: v => (v.value === 'Male' ? 'آقا' : 'خانم'),
 		},
 		{
 			field: 'phone',
@@ -51,6 +62,54 @@ const Patients = () => {
 			width: 200,
 		},
 	];
+
+	useEffect(() => {
+		if (!isLoading) return;
+		const exec = async () => {
+			try {
+				const response = await axios.get('/patient', {
+					headers: {
+						Authorization: 'Bearer ' + token,
+					},
+				});
+				if (response.status < 300) {
+					setPatientList(response.data.data);
+				}
+			} catch {
+				notify({ msg: 'خطا در برقراری ارتباط با سرور', type: 'error' });
+			} finally {
+				setIsLoading(false);
+			}
+		};
+		exec();
+	}, [isLoading]);
+
+	useEffect(() => {
+		if (!isLoading || searchString.trim() === '') return;
+
+		const search = async () => {
+			try {
+				const response = await axios.get('/patient/s/' + searchString, {
+					headers: {
+						Authorization: 'Bearer ' + token,
+					},
+				});
+				if (response.status < 300) {
+					setIsSearch(true);
+					setPatientList(response.data.data);
+				}
+			} catch {
+				setIsSearch(false);
+				notify({
+					msg: 'جستجوی ناموفق، خطا در برقراری ارتباط با سرور',
+					type: 'error',
+				});
+			} finally {
+				setIsLoading(false);
+			}
+		};
+		search();
+	}, [isLoading]);
 
 	return (
 		<>
@@ -61,7 +120,7 @@ const Patients = () => {
 				search={searchString}
 				onChange={setSearchString}
 				content='
-						جستجو بر اساس کد ملی و نام بیمار'
+						جستجو بر اساس کد ملی، شماره تلفن و نام بیمار'
 			/>
 			<Fade
 				in={true}
@@ -79,9 +138,9 @@ const Patients = () => {
 						<Typography
 							variant='h4'
 							fontWeight='bold'>
-							بیماران
+							بیماران {isSearch && `جستجو برای: ${searchString}`}
 						</Typography>
-						<Box sx={{ display: 'flex', gap: 2 }}>
+						<ButtonGroup>
 							<Button
 								onClick={() => navigate('/patient/new')}
 								size='small'
@@ -93,8 +152,8 @@ const Patients = () => {
 								onClick={handleShowSearch}
 								size='small'
 								variant='outlined'
-								startIcon={<Search />}>
-								جستجو
+								startIcon={!isSearch ? <Search /> : <Close />}>
+								{!isSearch ? 'جستجو' : 'نمایش لیست اصلی'}
 							</Button>
 							<Button
 								onClick={() => navigate('/')}
@@ -103,12 +162,15 @@ const Patients = () => {
 								startIcon={<Home />}>
 								صفحه اصلی
 							</Button>
-						</Box>
+						</ButtonGroup>
 					</Grid>
 					<Grid
 						item
 						xs={12}>
-						<DataTable header={gridHeader} />
+						<DataTable
+							header={gridHeader}
+							data={patientList}
+						/>
 					</Grid>
 				</Grid>
 			</Fade>

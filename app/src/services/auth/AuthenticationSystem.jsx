@@ -16,6 +16,8 @@ const AuthenticationSystem = ({ children }) => {
 			setToken(_token);
 			setRole(_role);
 			setIsAuthenticated(true);
+		} else {
+			setIsAuthenticated(false);
 		}
 		setCanView(true);
 	}, []);

@@ -1,4 +1,4 @@
-import { Fade, Grid, Typography, Button, Box } from '@mui/material';
+import { Fade, Grid, Typography, Button, ButtonGroup } from '@mui/material';
 import { Home, Add, Search, Inventory } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
@@ -24,7 +24,7 @@ const Dossiers = () => {
 	const gridHeader = [
 		{
 			field: 'id',
-			headerName: 'ردیف',
+			headerName: 'شماره',
 			width: 100,
 		},
 		{
@@ -108,7 +108,7 @@ const Dossiers = () => {
 							fontWeight='bold'>
 							پرونده ها
 						</Typography>
-						<Box sx={{ display: 'flex', gap: 2 }}>
+						<ButtonGroup>
 							<Button
 								onClick={() => navigate('/dossier/new')}
 								size='small'
@@ -137,7 +137,7 @@ const Dossiers = () => {
 								startIcon={<Home />}>
 								صفحه اصلی
 							</Button>
-						</Box>
+						</ButtonGroup>
 					</Grid>
 					<Grid
 						item

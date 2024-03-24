@@ -41,10 +41,6 @@ const Home = () => {
 				display='flex'
 				alignItems='center'
 				justifyContent='center'>
-				<ItemContainer href='/receptions'>
-					<MeetingRoom style={{ scale: '200%' }} />
-					مراجعات
-				</ItemContainer>
 				<ItemContainer href='/patients'>
 					<People style={{ scale: '200%' }} />
 					بیماران
@@ -52,6 +48,10 @@ const Home = () => {
 				<ItemContainer href='/dossiers'>
 					<Inventory style={{ scale: '200%' }} />
 					پرونده ها
+				</ItemContainer>
+				<ItemContainer href='/receptions'>
+					<MeetingRoom style={{ scale: '200%' }} />
+					مراجعات
 				</ItemContainer>
 				<ItemContainer href='/storage'>
 					<Warehouse style={{ scale: '200%' }} />

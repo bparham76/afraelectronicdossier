@@ -1,7 +1,7 @@
 import React from 'react';
 
 const ViewPatient = () => {
-	return <div>ViewPatient.jsx</div>;
+	return <div>ViewPatient</div>;
 };
 
 export default ViewPatient;
