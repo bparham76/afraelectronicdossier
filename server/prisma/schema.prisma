@@ -97,14 +97,16 @@ model Attachment {
 }
 
 model Dossier {
-  id          Int          @id @default(autoincrement())
-  patient     Patient?     @relation(fields: [patientId], references: [id])
-  patientId   Int
-  drugType    DrugType
-  state       Status
-  records     Reception[]
-  attachments Attachment[]
-  storeState  StoreStatus  @default(normal)
+  id            Int          @id @default(autoincrement())
+  patient       Patient?     @relation(fields: [patientId], references: [id])
+  patientId     Int
+  drugType      DrugType
+  state         Status
+  records       Reception[]
+  attachments   Attachment[]
+  storeState    StoreStatus  @default(normal)
+  inQueue       Boolean      @default(false)
+  dossierNumber String?      @unique
 }
 
 model Reception {

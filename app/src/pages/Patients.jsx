@@ -64,7 +64,7 @@ const Patients = () => {
 	];
 
 	useEffect(() => {
-		if (!isLoading) return;
+		if (!isLoading || isSearch) return;
 		const exec = async () => {
 			try {
 				const response = await axios.get('/patient', {
@@ -138,7 +138,8 @@ const Patients = () => {
 						<Typography
 							variant='h4'
 							fontWeight='bold'>
-							بیماران {isSearch && `جستجو برای: ${searchString}`}
+							بیماران
+							{isSearch && `؛ جستجو برای: ${searchString}`}
 						</Typography>
 						<ButtonGroup>
 							<Button

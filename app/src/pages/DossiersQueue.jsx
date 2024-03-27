@@ -1,15 +1,21 @@
 import { Fade, Grid, Typography, Button, ButtonGroup } from '@mui/material';
 import { Home, Search, Inventory } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SearchBox from '../components/SearchBox';
 import LoadingOverlay from '../components/LoadingOverlay';
 import DataTable from '../components/DataTable';
+import { useNotify } from '../services/NotificationSystem';
+import { useAuthState } from '../services/auth/AuthenticationSystem';
+import axios from 'axios';
 
 const DossiersQueue = () => {
 	const navigate = useNavigate();
-	const [dataList, setDataList] = useState(null);
-	const [isLoading, setIsLoading] = useState(false);
+	const notify = useNotify();
+	const { token } = useAuthState();
+	const [dataList, setDataList] = useState([]);
+	const [isLoading, setIsLoading] = useState(true);
+	const [isSearch, setIsSearch] = useState(false);
 	const [searchString, setSearchString] = useState('');
 	const [showSearchDialog, setShowSearchDialog] = useState(false);
 	const handleShowSearch = () => setShowSearchDialog(true);
@@ -38,10 +44,42 @@ const DossiersQueue = () => {
 		},
 		{
 			field: 'drugType',
-			headerName: 'نوع مصرف',
+			headerName: 'صف تشکیل',
 			width: 200,
 		},
 	];
+
+	useEffect(() => {
+		if (!isLoading || isSearch) return;
+
+		const getList = async () => {
+			try {
+				const response = await axios.get('/dossier/all?queue=1', {
+					headers: { Authorization: 'Bearer ' + token },
+				});
+				if (response.status < 400) {
+					setDataList(
+						response.data.data?.map(r => ({
+							id: r?.id,
+							firstName: r.patient?.firstName,
+							lastName: r.patient?.lastName,
+							drugType: r?.drugType,
+						}))
+					);
+				}
+			} catch (error) {
+				setDataList([]);
+				notify({
+					type: 'error',
+					msg: 'خطا در برقراری ارتباط با سرور، لیست پرونده ها دریافت نشد.',
+				});
+			} finally {
+				setIsLoading(false);
+			}
+		};
+
+		getList();
+	}, [isLoading]);
 
 	return (
 		<>
@@ -100,7 +138,10 @@ const DossiersQueue = () => {
 					<Grid
 						item
 						xs={12}>
-						<DataTable header={gridHeader} />
+						<DataTable
+							header={gridHeader}
+							data={dataList}
+						/>
 					</Grid>
 				</Grid>
 			</Fade>

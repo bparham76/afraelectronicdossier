@@ -1,10 +1,9 @@
 import express from 'express';
 import cors from 'cors';
+
 import authRouter from './routes/auth.js';
 import patientRouter from './routes/patients.js';
-
-import moment from 'jalali-moment';
-import prisma from './utils/prisma.js';
+import dossierRouter from './routes/dossiers.js';
 
 const app = express();
 
@@ -13,5 +12,6 @@ app.use(cors());
 
 app.use('/auth', authRouter);
 app.use('/patient', patientRouter);
+app.use('/dossier', dossierRouter);
 
 const server = app.listen(4000, () => console.log('server running... .'));

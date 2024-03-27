@@ -4,17 +4,27 @@ import { useNavigate } from 'react-router-dom';
 import DataTable from '../components/DataTable';
 import LoadingOverlay from '../components/LoadingOverlay';
 import axios from 'axios';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useReducer } from 'react';
 import { useNotify, useOkCancelDialog } from '../services/NotificationSystem';
 import { useAuthState } from '../services/auth/AuthenticationSystem';
+import { storageReducer, storageData } from '../services/data/storage';
 
 const Settings = () => {
 	const navigate = useNavigate();
 	const notify = useNotify();
 	const showDialog = useOkCancelDialog();
 	const [isUsersLoading, setIsUsersLoading] = useState(true);
+	const [isStorageLoading, setIsStoragesLoading] = useState(true);
 	const [usersData, setUsersData] = useState([]);
 	const { token } = useAuthState();
+	const capacityRef = useRef();
+	const [capacity, dispatch] = useReducer(storageReducer, storageData);
+	const [canUpdateStorage, setCanUpdateStorage] = useState(false);
+	const [submitStorageData, setSubmitStorageData] = useState(false);
+
+	useEffect(() => {
+		capacityRef.current = storageData;
+	}, []);
 
 	const handleShowUser = id =>
 		showDialog({
@@ -33,11 +43,14 @@ const Settings = () => {
 						Authorization: 'Bearer ' + token,
 					},
 				});
-				if (response.status < 300) {
+				if (response.status < 400) {
 					setUsersData(response.data.data);
 				}
 			} catch {
-				notify({ msg: 'خطا در برقراری ارتباط با سرور', type: 'error' });
+				notify({
+					msg: 'خطا در برقراری ارتباط با سرور، فهرست کاربران دریافت نشد.',
+					type: 'error',
+				});
 			} finally {
 				setIsUsersLoading(false);
 			}
@@ -45,6 +58,91 @@ const Settings = () => {
 
 		execUsers();
 	}, [isUsersLoading]);
+
+	useEffect(() => {
+		if (!isStorageLoading || submitStorageData) return;
+
+		const execStorage = async () => {
+			try {
+				const response = await axios.get('/dossier/capacity', {
+					headers: {
+						Authorization: 'Bearer ' + token,
+					},
+				});
+				if (response.status < 400) {
+					const B2 = response.data.data?.find(
+						p => p.drug == 'b2'
+					)?.cap;
+					const Metadon = response.data.data?.find(
+						p => p.drug == 'metadon'
+					)?.cap;
+					const Opium = response.data.data?.find(
+						p => p.drug == 'opium'
+					)?.cap;
+					capacityRef.current = {
+						Opium: Opium,
+						Metadon: Metadon,
+						B2: B2,
+					};
+					dispatch({ type: 'init', payload: response.data.data });
+				}
+			} catch {
+				notify({
+					msg: 'خطا در برقراری ارتباط با سرور، ظرفیت پرونده ها دریافت نشد.',
+					type: 'error',
+				});
+			} finally {
+				setIsStoragesLoading(false);
+			}
+		};
+
+		execStorage();
+	}, [isStorageLoading]);
+
+	useEffect(() => {
+		if (isStorageLoading) return;
+
+		if (
+			capacity.B2 === capacityRef.current.B2 &&
+			capacity.Opium === capacityRef.current.Opium &&
+			capacity.Metadon === capacityRef.current.Metadon
+		)
+			setCanUpdateStorage(false);
+		else setCanUpdateStorage(true);
+	}, [capacity]);
+
+	useEffect(() => {
+		if (!submitStorageData) return;
+
+		const submitData = async () => {
+			try {
+				setIsStoragesLoading(true);
+				const response = await axios.post(
+					'/dossier/capacity',
+					capacity,
+					{
+						headers: {
+							Authorization: 'Bearer ' + token,
+						},
+					}
+				);
+				if (response.status < 400)
+					notify({
+						msg: 'ظرفیت پذیرش با موفقیت به روز شد.',
+					});
+			} catch {
+				notify({
+					msg: 'خطا در برقراری ارتباط با سرور، بروز رسانی تنظیمات انجام نشد',
+					type: 'error',
+				});
+			} finally {
+				setIsStoragesLoading(false);
+				setSubmitStorageData(false);
+			}
+		};
+
+		submitData();
+	}, [submitStorageData]);
 
 	const gridHeader = [
 		{
@@ -83,7 +181,7 @@ const Settings = () => {
 
 	return (
 		<>
-			<LoadingOverlay open={isUsersLoading} />
+			<LoadingOverlay open={isUsersLoading || isStorageLoading} />
 			<Fade
 				in={true}
 				unmountOnExit>
@@ -134,6 +232,13 @@ const Settings = () => {
 								item
 								xs={4}>
 								<TextField
+									value={capacity.Metadon}
+									onChange={e =>
+										dispatch({
+											type: 'Metadon',
+											payload: e.target.value,
+										})
+									}
 									variant='outlined'
 									size='small'
 								/>
@@ -154,6 +259,13 @@ const Settings = () => {
 								item
 								xs={4}>
 								<TextField
+									value={capacity.B2}
+									onChange={e =>
+										dispatch({
+											type: 'B2',
+											payload: e.target.value,
+										})
+									}
 									variant='outlined'
 									size='small'
 								/>
@@ -174,6 +286,13 @@ const Settings = () => {
 								item
 								xs={4}>
 								<TextField
+									value={capacity.Opium}
+									onChange={e =>
+										dispatch({
+											type: 'Opium',
+											payload: e.target.value,
+										})
+									}
 									variant='outlined'
 									size='small'
 								/>
@@ -189,7 +308,8 @@ const Settings = () => {
 									justifyContent: 'flex-end',
 								}}>
 								<Button
-									disabled
+									onClick={() => setSubmitStorageData(true)}
+									disabled={!canUpdateStorage}
 									size='small'
 									variant='contained'
 									startIcon={<Save />}>

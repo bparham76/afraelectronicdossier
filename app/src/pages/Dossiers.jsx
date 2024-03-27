@@ -1,15 +1,21 @@
 import { Fade, Grid, Typography, Button, ButtonGroup } from '@mui/material';
-import { Home, Add, Search, Inventory } from '@mui/icons-material';
+import { Home, Add, Search, Inventory, Close } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SearchBox from '../components/SearchBox';
 import LoadingOverlay from '../components/LoadingOverlay';
 import DataTable from '../components/DataTable';
+import { useAuthState } from '../services/auth/AuthenticationSystem';
+import { useNotify } from '../services/NotificationSystem';
+import axios from 'axios';
 
 const Dossiers = () => {
 	const navigate = useNavigate();
-	const [dataList, setDataList] = useState(null);
-	const [isLoading, setIsLoading] = useState(false);
+	const notify = useNotify();
+	const { token } = useAuthState();
+	const [dataList, setDataList] = useState([]);
+	const [isLoading, setIsLoading] = useState(true);
+	const [isSearch, setIsSearch] = useState(false);
 	const [searchString, setSearchString] = useState('');
 	const [showSearchDialog, setShowSearchDialog] = useState(false);
 	const handleShowSearch = () => setShowSearchDialog(true);
@@ -23,9 +29,9 @@ const Dossiers = () => {
 
 	const gridHeader = [
 		{
-			field: 'id',
-			headerName: 'شماره',
-			width: 100,
+			field: 'dossierNumber',
+			headerName: 'شماره پرونده',
+			width: 200,
 		},
 		{
 			field: 'firstName',
@@ -42,6 +48,12 @@ const Dossiers = () => {
 			field: 'drugType',
 			headerName: 'نوع مصرف',
 			width: 200,
+			valueGetter: v =>
+				v.value === 'Metadon'
+					? 'متادون'
+					: v.value === 'Opium'
+					? 'اوپیوم'
+					: 'B2',
 		},
 		// {
 		// 	field: 'action',
@@ -63,20 +75,39 @@ const Dossiers = () => {
 		// 	},
 		// },
 	];
-	const data = [
-		{
-			id: 1,
-			firstName: 'عزیز اله',
-			lastName: 'رجب نیا',
-			drugType: 'متادون',
-		},
-		{
-			id: 2,
-			firstName: 'اکبر',
-			lastName: 'رمضانی',
-			drugType: 'اوپیوم',
-		},
-	];
+
+	useEffect(() => {
+		if (!isLoading || isSearch) return;
+
+		const getList = async () => {
+			try {
+				const response = await axios.get('/dossier/all', {
+					headers: { Authorization: 'Bearer ' + token },
+				});
+				if (response.status < 400) {
+					setDataList(
+						response.data.data?.map(r => ({
+							id: r?.id,
+							firstName: r.patient?.firstName,
+							lastName: r.patient?.lastName,
+							drugType: r?.drugType,
+							dossierNumber: r?.dossierNumber,
+						}))
+					);
+				}
+			} catch (error) {
+				setDataList([]);
+				notify({
+					type: 'error',
+					msg: 'خطا در برقراری ارتباط با سرور، لیست پرونده ها دریافت نشد.',
+				});
+			} finally {
+				setIsLoading(false);
+			}
+		};
+
+		getList();
+	}, [isLoading]);
 
 	return (
 		<>
@@ -107,6 +138,7 @@ const Dossiers = () => {
 							variant='h4'
 							fontWeight='bold'>
 							پرونده ها
+							{isSearch && `؛ جستجو برای: ${searchString}`}
 						</Typography>
 						<ButtonGroup>
 							<Button
@@ -120,8 +152,8 @@ const Dossiers = () => {
 								onClick={handleShowSearch}
 								size='small'
 								variant='outlined'
-								startIcon={<Search />}>
-								جستجو
+								startIcon={!isSearch ? <Search /> : <Close />}>
+								{!isSearch ? 'جستجو' : 'نمایش لیست اصلی'}
 							</Button>
 							<Button
 								onClick={() => navigate('/dossiers/queue')}
@@ -144,7 +176,7 @@ const Dossiers = () => {
 						xs={12}>
 						<DataTable
 							header={gridHeader}
-							data={data}
+							data={dataList}
 							onRowClick={handleViewDetails}
 						/>
 					</Grid>
