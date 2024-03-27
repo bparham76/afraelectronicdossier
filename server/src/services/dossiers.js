@@ -223,7 +223,9 @@ export async function getAllDossiers(req, res) {
 				inQueue: queue ? true : false,
 			},
 			include: {
-				patient: { select: { firstName: true, lastName: true } },
+				patient: {
+					select: { firstName: true, lastName: true, phone: true },
+				},
 			},
 		});
 		res.status(201).json({ data: result });

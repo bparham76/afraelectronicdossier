@@ -14,32 +14,39 @@ const DossiersQueue = () => {
 	const notify = useNotify();
 	const { token } = useAuthState();
 	const [dataList, setDataList] = useState([]);
+	const [dossierCaps, setDossierCaps] = useState([
+		{ drug: 'b2', cap: 0 },
+		{ drug: 'opium', cap: 0 },
+		{ drug: 'metadon', cap: 0 },
+	]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isSearch, setIsSearch] = useState(false);
 	const [searchString, setSearchString] = useState('');
 	const [showSearchDialog, setShowSearchDialog] = useState(false);
 	const handleShowSearch = () => {
-		if (searchString.trim() !== '') {
+		if (searchString.trim() !== '' || isSearch) {
 			setSearchString('');
 			setIsLoading(true);
 			setIsSearch(false);
 		} else setShowSearchDialog(true);
 	};
 	const handleHideSearch = () => setShowSearchDialog(false);
-	const handleCommitSearch = () => setIsLoading(true);
+	const handleCommitSearch = () => {
+		setIsSearch(true);
+		setIsLoading(true);
+	};
 
 	const gridHeader = [
-		{
-			field: 'id',
-			headerName: 'شماره',
-			width: 100,
-		},
+		// {
+		// 	field: 'id',
+		// 	headerName: 'شماره',
+		// 	width: 100,
+		// },
 		{
 			field: 'firstName',
 			headerName: 'نام',
 			width: 200,
 		},
-		,
 		{
 			field: 'lastName',
 			headerName: 'نام خانوادگی',
@@ -56,6 +63,33 @@ const DossiersQueue = () => {
 					? 'اوپیوم'
 					: 'B2',
 		},
+		{
+			field: 'phone',
+			headerName: 'تلفن همراه',
+			width: 200,
+		},
+
+		{
+			field: 'action',
+			headerName: 'کنترل',
+			sortable: false,
+			width: 200,
+			disableClickEventBubbling: true,
+			renderCell: params => {
+				if (
+					dossierCaps.find(
+						c => c.drug === params.row.drugType.toLowerCase()
+					).cap > 0
+				)
+					return (
+						<Button
+							variant='outlined'
+							size='small'>
+							تشکیل
+						</Button>
+					);
+			},
+		},
 	];
 
 	useEffect(() => {
@@ -63,6 +97,7 @@ const DossiersQueue = () => {
 
 		const getList = async () => {
 			try {
+				setIsLoading(true);
 				const response = await axios.get('/dossier/all?queue=1', {
 					headers: { Authorization: 'Bearer ' + token },
 				});
@@ -73,8 +108,17 @@ const DossiersQueue = () => {
 							firstName: r.patient?.firstName,
 							lastName: r.patient?.lastName,
 							drugType: r?.drugType,
+							phone: r.patient.phone,
 						}))
 					);
+				}
+				const res = await axios.get('/dossier/capacity/dossier', {
+					headers: {
+						Authorization: 'Bearer ' + token,
+					},
+				});
+				if (res.status < 300) {
+					setDossierCaps(res?.data?.data);
 				}
 			} catch (error) {
 				setDataList([]);
@@ -95,6 +139,7 @@ const DossiersQueue = () => {
 
 		const search = async () => {
 			try {
+				setIsLoading(true);
 				const response = await axios.get(
 					'/dossier/s/' + searchString + '?queue=1',
 					{

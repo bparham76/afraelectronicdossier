@@ -19,14 +19,17 @@ const Dossiers = () => {
 	const [searchString, setSearchString] = useState('');
 	const [showSearchDialog, setShowSearchDialog] = useState(false);
 	const handleShowSearch = () => {
-		if (searchString.trim() !== '') {
+		if (searchString.trim() !== '' || isSearch) {
 			setSearchString('');
 			setIsLoading(true);
 			setIsSearch(false);
 		} else setShowSearchDialog(true);
 	};
 	const handleHideSearch = () => setShowSearchDialog(false);
-	const handleCommitSearch = () => setIsLoading(true);
+	const handleCommitSearch = () => {
+		setIsSearch(true);
+		setIsLoading(true);
+	};
 
 	const handleViewDetails = e => navigate('/dossier/' + e.id);
 
@@ -84,6 +87,7 @@ const Dossiers = () => {
 
 		const getList = async () => {
 			try {
+				setIsLoading(true);
 				const response = await axios.get('/dossier/all', {
 					headers: { Authorization: 'Bearer ' + token },
 				});
@@ -117,6 +121,7 @@ const Dossiers = () => {
 
 		const search = async () => {
 			try {
+				setIsLoading(true);
 				const response = await axios.get('/dossier/s/' + searchString, {
 					headers: {
 						Authorization: 'Bearer ' + token,

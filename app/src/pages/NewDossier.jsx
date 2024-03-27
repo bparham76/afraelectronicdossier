@@ -22,7 +22,7 @@ const NewDossier = () => {
 	const notify = useNotify();
 	const { token } = useAuthState();
 	const [isSearchLoading, setIsSearchLoading] = useState(false);
-	const [isCapLoading, setIsCaoLoading] = useState(false);
+	const [isCapLoading, setIsCapLoading] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [submitData, setSubmitData] = useState(false);
 	const [patientList, setPatientList] = useState([
@@ -46,7 +46,7 @@ const NewDossier = () => {
 	useEffect(() => {
 		const getCap = async () => {
 			try {
-				setIsCaoLoading(true);
+				setIsCapLoading(true);
 				const res = await axios.get('/dossier/capacity/dossier', {
 					headers: {
 						Authorization: 'Bearer ' + token,
@@ -57,7 +57,7 @@ const NewDossier = () => {
 				}
 			} catch (error) {
 			} finally {
-				setIsCaoLoading(false);
+				setIsCapLoading(false);
 			}
 		};
 
@@ -248,7 +248,7 @@ const NewDossier = () => {
 									: drugType === 'Opium'
 									? ' اوپیوم '
 									: ' B2 '}
-								تکیل است.
+								تکمیل است.
 							</Typography>
 							<Typography variant='body1'>
 								در صورت ثبت، پرونده به صف تشکیل وارد می شود.

@@ -19,14 +19,17 @@ const Patients = () => {
 	const [searchString, setSearchString] = useState('');
 	const [showSearchDialog, setShowSearchDialog] = useState(false);
 	const handleShowSearch = () => {
-		if (searchString.trim() !== '') {
+		if (searchString.trim() !== '' || isSearch) {
 			setSearchString('');
 			setIsLoading(true);
 			setIsSearch(false);
 		} else setShowSearchDialog(true);
 	};
 	const handleHideSearch = () => setShowSearchDialog(false);
-	const handleCommitSearch = () => setIsLoading(true);
+	const handleCommitSearch = () => {
+		setIsSearch(true);
+		setIsLoading(true);
+	};
 
 	const gridHeader = [
 		{
@@ -66,6 +69,7 @@ const Patients = () => {
 	useEffect(() => {
 		if (!isLoading || isSearch) return;
 		const exec = async () => {
+			setIsLoading(true);
 			try {
 				const response = await axios.get('/patient', {
 					headers: {
@@ -89,12 +93,13 @@ const Patients = () => {
 
 		const search = async () => {
 			try {
+				setIsLoading(true);
 				const response = await axios.get('/patient/s/' + searchString, {
 					headers: {
 						Authorization: 'Bearer ' + token,
 					},
 				});
-				if (response.status < 300) {
+				if (response.status < 400) {
 					setIsSearch(true);
 					setPatientList(response.data.data);
 				}

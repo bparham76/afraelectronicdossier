@@ -4,6 +4,8 @@ import moment from 'jalali-moment';
 
 const prisma = new PrismaClient();
 
+import { fakerFA } from '@faker-js/faker';
+
 const userData = [
 	{
 		firstName: 'پرهام',
@@ -130,6 +132,33 @@ async function main() {
 		console.log(`Created patient with id: ${user.id}`);
 	}
 
+	let male = true;
+	for (let i = 0; i < 20; i++) {
+		await prisma.patient.create({
+			data: {
+				firstName: fakerFA.person.firstName(male && 'male'),
+				lastName: fakerFA.person.lastName(),
+				nationalID: fakerFA.string.numeric({ length: 10 }),
+				phone: '09' + fakerFA.string.numeric({ length: 9 }),
+				landLine: '0' + fakerFA.string.numeric({ length: 10 }),
+				gender: male ? 'Male' : 'Female',
+				address: fakerFA.location
+					.streetAddress({
+						useFullAddress: true,
+					})
+					.toString(),
+				birthDate: fakerFA.date
+					.birthdate({
+						min: 1970,
+						max: 1992,
+						mode: 'year',
+					})
+					.toISOString(),
+			},
+		});
+		male = !male;
+	}
+
 	for (const u of storageData) {
 		const user = await prisma.storage.create({
 			data: u,
@@ -144,6 +173,17 @@ async function main() {
 		console.log(`Created setting entry with id: ${user.id}`);
 	}
 	console.log(`Seeding finished.`);
+
+	for (let i = 1; i <= 20; i++) {
+		await prisma.dossier.create({
+			data: {
+				patientId: i,
+				drugType: i % 3 == 1 ? 'B2' : i % 3 == 2 ? 'Metadon' : 'Opium',
+				dossierNumber: fakerFA.string.numeric({ length: 6 }),
+				state: 'Active',
+			},
+		});
+	}
 }
 
 main()
