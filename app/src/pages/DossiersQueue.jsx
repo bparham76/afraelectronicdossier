@@ -1,5 +1,5 @@
 import { Fade, Grid, Typography, Button, ButtonGroup } from '@mui/material';
-import { Home, Search, Inventory } from '@mui/icons-material';
+import { Home, Search, Inventory, Close } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import SearchBox from '../components/SearchBox';
@@ -18,12 +18,15 @@ const DossiersQueue = () => {
 	const [isSearch, setIsSearch] = useState(false);
 	const [searchString, setSearchString] = useState('');
 	const [showSearchDialog, setShowSearchDialog] = useState(false);
-	const handleShowSearch = () => setShowSearchDialog(true);
-	const handleHideSearch = () => setShowSearchDialog(false);
-	const handleCommitSearch = () => {
-		alert(searchString);
-		setIsLoading(true);
+	const handleShowSearch = () => {
+		if (searchString.trim() !== '') {
+			setSearchString('');
+			setIsLoading(true);
+			setIsSearch(false);
+		} else setShowSearchDialog(true);
 	};
+	const handleHideSearch = () => setShowSearchDialog(false);
+	const handleCommitSearch = () => setIsLoading(true);
 
 	const gridHeader = [
 		{
@@ -81,6 +84,43 @@ const DossiersQueue = () => {
 		getList();
 	}, [isLoading]);
 
+	useEffect(() => {
+		if (!isLoading || searchString.trim() === '') return;
+
+		const search = async () => {
+			try {
+				const response = await axios.get(
+					'/dossier/s/' + searchString + '?queue=1',
+					{
+						headers: {
+							Authorization: 'Bearer ' + token,
+						},
+					}
+				);
+				if (response.status < 300) {
+					setIsSearch(true);
+					setDataList(
+						response.data.data?.map(r => ({
+							id: r?.id,
+							firstName: r.patient?.firstName,
+							lastName: r.patient?.lastName,
+							drugType: r?.drugType,
+						}))
+					);
+				}
+			} catch {
+				setIsSearch(false);
+				notify({
+					msg: 'جستجوی ناموفق، خطا در برقراری ارتباط با سرور',
+					type: 'error',
+				});
+			} finally {
+				setIsLoading(false);
+			}
+		};
+		search();
+	}, [isLoading]);
+
 	return (
 		<>
 			<SearchBox
@@ -116,8 +156,8 @@ const DossiersQueue = () => {
 								onClick={handleShowSearch}
 								size='small'
 								variant='outlined'
-								startIcon={<Search />}>
-								جستجو
+								startIcon={!isSearch ? <Search /> : <Close />}>
+								{!isSearch ? 'جستجو' : 'نمایش لیست اصلی'}
 							</Button>
 							<Button
 								onClick={() => navigate('/dossiers')}

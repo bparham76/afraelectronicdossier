@@ -157,7 +157,7 @@ export async function findDossier(req, res) {
 		const { queue } = req.query;
 		const result = await prisma.dossier.findMany({
 			where: {
-				inQueue: queue === 'true' ? true : false,
+				inQueue: queue ? true : false,
 				storeState: {
 					in: !['SuperAdmin', 'Doctor'].includes(req.user.role)
 						? [StoreStatus.normal]
