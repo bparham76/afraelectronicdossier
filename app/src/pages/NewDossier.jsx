@@ -224,19 +224,22 @@ const NewDossier = () => {
 							<MenuItem value='Metadon'>متادون</MenuItem>
 							<MenuItem value='Opium'>اوپیوم</MenuItem>
 						</Select>
-						<TextField
-							size='small'
-							label='شماره پرونده'
-							variant='outlined'
-							value={number}
-							onChange={e =>
-								setNumber(
-									/^[0-9]{0,10}$/.test(e.target.value)
-										? e.target.value
-										: number
-								)
-							}
-						/>
+						<Collapse in={!isCapacityFull}>
+							<TextField
+								fullWidth
+								size='small'
+								label='شماره پرونده'
+								variant='outlined'
+								value={number}
+								onChange={e =>
+									setNumber(
+										/^[0-9]{0,10}$/.test(e.target.value)
+											? e.target.value
+											: number
+									)
+								}
+							/>
+						</Collapse>
 						<Collapse in={isCapacityFull}>
 							<Typography variant='body1'>
 								ظرفیت برای پذیرش در گروه
@@ -255,7 +258,7 @@ const NewDossier = () => {
 							disabled={
 								drugType === 'none' ||
 								patient < 0 ||
-								number.length === 0
+								(!isCapacityFull && number.length === 0)
 							}
 							onClick={() => setSubmitData(true)}
 							variant='contained'

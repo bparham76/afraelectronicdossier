@@ -126,10 +126,12 @@ const Settings = () => {
 						},
 					}
 				);
-				if (response.status < 400)
+				if (response.status < 400) {
 					notify({
 						msg: 'ظرفیت پذیرش با موفقیت به روز شد.',
 					});
+					setCanUpdateStorage(false);
+				}
 			} catch {
 				notify({
 					msg: 'خطا در برقراری ارتباط با سرور، بروز رسانی تنظیمات انجام نشد',

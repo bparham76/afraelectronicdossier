@@ -49,6 +49,12 @@ const DossiersQueue = () => {
 			field: 'drugType',
 			headerName: 'صف تشکیل',
 			width: 200,
+			valueGetter: v =>
+				v.value === 'Metadon'
+					? 'متادون'
+					: v.value === 'Opium'
+					? 'اوپیوم'
+					: 'B2',
 		},
 	];
 
@@ -150,6 +156,7 @@ const DossiersQueue = () => {
 							variant='h4'
 							fontWeight='bold'>
 							پرونده های در صف تشکیل
+							{isSearch && `؛ جستجو برای: ${searchString}`}
 						</Typography>
 						<ButtonGroup>
 							<Button

@@ -1,4 +1,3 @@
-import { StoreStatus } from '@prisma/client';
 import prisma from '../utils/prisma.js';
 
 export async function checkDossierCapacity(req, res) {
@@ -158,11 +157,6 @@ export async function findDossier(req, res) {
 		const result = await prisma.dossier.findMany({
 			where: {
 				inQueue: queue ? true : false,
-				storeState: {
-					in: !['SuperAdmin', 'Doctor'].includes(req.user.role)
-						? [StoreStatus.normal]
-						: [StoreStatus.normal, StoreStatus.hidden],
-				},
 				OR: [
 					{
 						patient: {
@@ -170,6 +164,7 @@ export async function findDossier(req, res) {
 								{ firstName: { contains: query } },
 								{ lastName: { contains: query } },
 								{ nationalID: { contains: query } },
+								{ phone: { contains: query } },
 							],
 						},
 					},
@@ -226,11 +221,6 @@ export async function getAllDossiers(req, res) {
 		const result = await prisma.dossier.findMany({
 			where: {
 				inQueue: queue ? true : false,
-				storeState: {
-					in: !['SuperAdmin', 'Doctor'].includes(req.user.role)
-						? [StoreStatus.normal]
-						: [StoreStatus.normal, StoreStatus.hidden],
-				},
 			},
 			include: {
 				patient: { select: { firstName: true, lastName: true } },
