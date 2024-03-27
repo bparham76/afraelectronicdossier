@@ -18,12 +18,15 @@ const Dossiers = () => {
 	const [isSearch, setIsSearch] = useState(false);
 	const [searchString, setSearchString] = useState('');
 	const [showSearchDialog, setShowSearchDialog] = useState(false);
-	const handleShowSearch = () => setShowSearchDialog(true);
-	const handleHideSearch = () => setShowSearchDialog(false);
-	const handleCommitSearch = () => {
-		alert(searchString);
-		setIsLoading(true);
+	const handleShowSearch = () => {
+		if (searchString.trim() !== '') {
+			setSearchString('');
+			setIsLoading(true);
+			setIsSearch(false);
+		} else setShowSearchDialog(true);
 	};
+	const handleHideSearch = () => setShowSearchDialog(false);
+	const handleCommitSearch = () => setIsLoading(true);
 
 	const handleViewDetails = e => navigate('/dossier/' + e.id);
 
@@ -107,6 +110,41 @@ const Dossiers = () => {
 		};
 
 		getList();
+	}, [isLoading]);
+
+	useEffect(() => {
+		if (!isLoading || searchString.trim() === '') return;
+
+		const search = async () => {
+			try {
+				const response = await axios.get('/dossier/s/' + searchString, {
+					headers: {
+						Authorization: 'Bearer ' + token,
+					},
+				});
+				if (response.status < 300) {
+					setIsSearch(true);
+					setDataList(
+						response.data.data?.map(r => ({
+							id: r?.id,
+							firstName: r.patient?.firstName,
+							lastName: r.patient?.lastName,
+							drugType: r?.drugType,
+							dossierNumber: r?.dossierNumber,
+						}))
+					);
+				}
+			} catch {
+				setIsSearch(false);
+				notify({
+					msg: 'جستجوی ناموفق، خطا در برقراری ارتباط با سرور',
+					type: 'error',
+				});
+			} finally {
+				setIsLoading(false);
+			}
+		};
+		search();
 	}, [isLoading]);
 
 	return (
