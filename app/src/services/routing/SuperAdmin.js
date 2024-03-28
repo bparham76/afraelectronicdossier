@@ -17,6 +17,7 @@ import NewUser from '../../pages/NewUser';
 import EditUser from '../../pages/EditUser';
 import ShipmentEntry from '../../pages/ShipmentEntry';
 import StorageReport from '../../pages/StorageReport';
+import NewAttachment from '../../pages/NewAttachment';
 
 export const superAdminMenu = [
 	{
@@ -125,5 +126,9 @@ export const superAdminRoutes = [
 	{
 		path: '/settings/user/:id',
 		element: <EditUser />,
+	},
+	{
+		path: '/attachment/:id/:type',
+		element: <NewAttachment />,
 	},
 ];

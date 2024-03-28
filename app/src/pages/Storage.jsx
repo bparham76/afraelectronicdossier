@@ -12,25 +12,6 @@ import DataTable from '../components/DataTable';
 
 const Storage = () => {
 	const navigate = useNavigate();
-	const gridHeader = [
-		{
-			field: 'id',
-			headerName: 'شماره',
-			width: 100,
-		},
-		{
-			field: 'drugType',
-			headerName: 'نوع دارو',
-			width: 200,
-		},
-		,
-		{
-			field: 'amount',
-			headerName: 'موجودی',
-			width: 200,
-		},
-	];
-
 	return (
 		<Fade
 			in={true}
@@ -82,3 +63,22 @@ const Storage = () => {
 };
 
 export default Storage;
+
+const gridHeader = [
+	{
+		field: 'id',
+		headerName: 'شماره',
+		width: 100,
+	},
+	{
+		field: 'drugType',
+		headerName: 'نوع دارو',
+		width: 200,
+	},
+	,
+	{
+		field: 'amount',
+		headerName: 'موجودی',
+		width: 200,
+	},
+];

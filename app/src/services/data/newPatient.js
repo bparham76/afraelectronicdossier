@@ -26,6 +26,22 @@ export function patientReducer(state, action) {
 			return { ...state, address: action.payload };
 		case 'gender':
 			return { ...state, gender: action.payload };
+		case 'init':
+			return {
+				id: action.payload.id,
+				nationalID: action.payload.nationalID,
+				firstName: action.payload.firstName,
+				lastName: action.payload.lastName,
+				gender: action.payload.gender,
+				bd: action.payload.birthDate.split('/')[2] + '',
+				bm: action.payload.birthDate.split('/')[1] + '',
+				by: action.payload.birthDate.split('/')[0] + '',
+				phone: action.payload.phone,
+				landLine: action.payload.landLine,
+				address: action.payload.address,
+			};
+		case 'full':
+			return action.payload;
 		default:
 			throw Error('User reducer: Invalid data entry.');
 	}
@@ -36,9 +52,9 @@ export const patientData = {
 	firstName: '',
 	lastName: '',
 	gender: 'none',
-	bd: 0,
-	bm: 0,
-	by: 0,
+	bd: '0',
+	bm: '0',
+	by: '0',
 	phone: '',
 	landLine: '',
 	address: '',

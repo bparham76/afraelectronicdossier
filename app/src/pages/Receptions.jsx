@@ -18,29 +18,6 @@ const Receptions = () => {
 		setIsLoading(true);
 	};
 
-	const gridHeader = [
-		{
-			field: 'id',
-			headerName: 'شماره',
-			width: 100,
-		},
-		{
-			field: 'dateTime',
-			headerName: 'تاریخ',
-			width: 200,
-		},
-		{
-			field: 'patientName',
-			headerName: 'نام بیمار',
-			width: 200,
-		},
-		,
-		{
-			field: 'drugDose',
-			headerName: 'مقدار تجویز',
-			width: 200,
-		},
-	];
 	return (
 		<>
 			<SearchByDate
@@ -102,3 +79,27 @@ const Receptions = () => {
 };
 
 export default Receptions;
+
+const gridHeader = [
+	{
+		field: 'id',
+		headerName: 'شماره',
+		width: 100,
+	},
+	{
+		field: 'dateTime',
+		headerName: 'تاریخ',
+		width: 200,
+	},
+	{
+		field: 'patientName',
+		headerName: 'نام بیمار',
+		width: 200,
+	},
+	,
+	{
+		field: 'drugDose',
+		headerName: 'مقدار تجویز',
+		width: 200,
+	},
+];

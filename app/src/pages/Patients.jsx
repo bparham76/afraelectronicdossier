@@ -31,47 +31,14 @@ const Patients = () => {
 		setIsLoading(true);
 	};
 
-	const gridHeader = [
-		{
-			field: 'id',
-			headerName: 'شماره',
-			width: 100,
-		},
-		{
-			field: 'nationalID',
-			headerName: 'شماره ملی',
-			width: 200,
-		},
-		{
-			field: 'firstName',
-			headerName: 'نام',
-			width: 200,
-		},
-		,
-		{
-			field: 'lastName',
-			headerName: 'نام خانوادگی',
-			width: 200,
-		},
-		{
-			field: 'gender',
-			headerName: 'جنسیت',
-			width: 200,
-			valueGetter: v => (v.value === 'Male' ? 'آقا' : 'خانم'),
-		},
-		{
-			field: 'phone',
-			headerName: 'تلفن همراه',
-			width: 200,
-		},
-	];
+	const handleViewDetails = e => navigate('/patient/' + e.id);
 
 	useEffect(() => {
 		if (!isLoading || isSearch) return;
 		const exec = async () => {
 			setIsLoading(true);
 			try {
-				const response = await axios.get('/patient', {
+				const response = await axios.get('/patient/all', {
 					headers: {
 						Authorization: 'Bearer ' + token,
 					},
@@ -176,6 +143,7 @@ const Patients = () => {
 						<DataTable
 							header={gridHeader}
 							data={patientList}
+							onRowClick={handleViewDetails}
 						/>
 					</Grid>
 				</Grid>
@@ -186,3 +154,38 @@ const Patients = () => {
 };
 
 export default Patients;
+
+const gridHeader = [
+	{
+		field: 'id',
+		headerName: 'شماره',
+		width: 100,
+	},
+	{
+		field: 'nationalID',
+		headerName: 'شماره ملی',
+		width: 200,
+	},
+	{
+		field: 'firstName',
+		headerName: 'نام',
+		width: 200,
+	},
+	,
+	{
+		field: 'lastName',
+		headerName: 'نام خانوادگی',
+		width: 200,
+	},
+	{
+		field: 'gender',
+		headerName: 'جنسیت',
+		width: 200,
+		valueGetter: v => (v.value === 'Male' ? 'آقا' : 'خانم'),
+	},
+	{
+		field: 'phone',
+		headerName: 'تلفن همراه',
+		width: 200,
+	},
+];

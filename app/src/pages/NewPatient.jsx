@@ -10,6 +10,7 @@ import {
 	Fade,
 	Grid,
 	ButtonGroup,
+	Tooltip,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { months } from '../data/calendar';
@@ -111,18 +112,23 @@ const NewPatient = () => {
 						}}
 						item
 						xs={6}>
-						<TextField
-							value={data.nationalID}
-							onChange={e =>
-								dispatch({
-									type: 'nationalID',
-									payload: e.target.value,
-								})
-							}
-							size='small'
-							label='شماره ملی'
-							variant='outlined'
-						/>
+						<Tooltip
+							disableInteractive
+							placement='left'
+							title='توجه فرمایید که پس از ثبت بیمار، شماره ملی قابل ویرایش نخواهد بود.'>
+							<TextField
+								value={data.nationalID}
+								onChange={e =>
+									dispatch({
+										type: 'nationalID',
+										payload: e.target.value,
+									})
+								}
+								size='small'
+								label='شماره ملی'
+								variant='outlined'
+							/>
+						</Tooltip>
 						<TextField
 							value={data.firstName}
 							onChange={e =>

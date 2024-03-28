@@ -9,19 +9,6 @@ const ViewDossier = () => {
 
 	const isQueue = params[0].get('action') !== null;
 
-	const attachmentsHeader = [
-		{
-			field: 'id',
-			headerName: 'شماره',
-			width: 100,
-		},
-		{
-			field: 'title',
-			headerName: 'عنوان',
-			width: 200,
-		},
-	];
-
 	const receptionsHeader = [
 		{
 			field: 'id',
@@ -122,3 +109,16 @@ const ViewDossier = () => {
 };
 
 export default ViewDossier;
+
+const attachmentsHeader = [
+	{
+		field: 'id',
+		headerName: 'شماره',
+		width: 100,
+	},
+	{
+		field: 'title',
+		headerName: 'عنوان',
+		width: 200,
+	},
+];

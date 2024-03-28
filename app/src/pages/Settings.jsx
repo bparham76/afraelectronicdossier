@@ -146,41 +146,6 @@ const Settings = () => {
 		submitData();
 	}, [submitStorageData]);
 
-	const gridHeader = [
-		{
-			field: 'id',
-			headerName: 'شماره',
-			width: 100,
-		},
-		{
-			field: 'firstName',
-			headerName: 'نام',
-			width: 100,
-		},
-		,
-		{
-			field: 'lastName',
-			headerName: 'نام خانوادگی',
-			width: 100,
-		},
-		{
-			field: 'username',
-			headerName: 'نام کاربری',
-			width: 100,
-		},
-		{
-			field: 'role',
-			headerName: 'نقش',
-			width: 100,
-			valueGetter: v =>
-				v.value === 'Doctor'
-					? 'پزشک'
-					: v.value === 'Secretary'
-					? 'منشی'
-					: 'پشتیبان',
-		},
-	];
-
 	return (
 		<>
 			<LoadingOverlay open={isUsersLoading || isStorageLoading} />
@@ -353,3 +318,38 @@ const Settings = () => {
 };
 
 export default Settings;
+
+const gridHeader = [
+	{
+		field: 'id',
+		headerName: 'شماره',
+		width: 100,
+	},
+	{
+		field: 'firstName',
+		headerName: 'نام',
+		width: 100,
+	},
+	,
+	{
+		field: 'lastName',
+		headerName: 'نام خانوادگی',
+		width: 100,
+	},
+	{
+		field: 'username',
+		headerName: 'نام کاربری',
+		width: 100,
+	},
+	{
+		field: 'role',
+		headerName: 'نقش',
+		width: 100,
+		valueGetter: v =>
+			v.value === 'Doctor'
+				? 'پزشک'
+				: v.value === 'Secretary'
+				? 'منشی'
+				: 'پشتیبان',
+	},
+];

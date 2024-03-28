@@ -33,55 +33,6 @@ const Dossiers = () => {
 
 	const handleViewDetails = e => navigate('/dossier/' + e.id);
 
-	const gridHeader = [
-		{
-			field: 'dossierNumber',
-			headerName: 'شماره پرونده',
-			width: 200,
-		},
-		{
-			field: 'firstName',
-			headerName: 'نام',
-			width: 200,
-		},
-		,
-		{
-			field: 'lastName',
-			headerName: 'نام خانوادگی',
-			width: 200,
-		},
-		{
-			field: 'drugType',
-			headerName: 'نوع مصرف',
-			width: 200,
-			valueGetter: v =>
-				v.value === 'Metadon'
-					? 'متادون'
-					: v.value === 'Opium'
-					? 'اوپیوم'
-					: 'B2',
-		},
-		// {
-		// 	field: 'action',
-		// 	headerName: 'کنترل',
-		// 	sortable: false,
-		// 	width: 200,
-		// 	disableClickEventBubbling: true,
-		// 	renderCell: params => {
-		// 		const handleClick = () =>
-		// 			alert(params.row.firstName + ' ' + params.row.lastName);
-		// 		return (
-		// 			<Button
-		// 				onClick={handleClick}
-		// 				variant='outlined'
-		// 				size='small'>
-		// 				نمایش
-		// 			</Button>
-		// 		);
-		// 	},
-		// },
-	];
-
 	useEffect(() => {
 		if (!isLoading || isSearch) return;
 
@@ -231,3 +182,52 @@ const Dossiers = () => {
 };
 
 export default Dossiers;
+
+const gridHeader = [
+	{
+		field: 'dossierNumber',
+		headerName: 'شماره پرونده',
+		width: 200,
+	},
+	{
+		field: 'firstName',
+		headerName: 'نام',
+		width: 200,
+	},
+	,
+	{
+		field: 'lastName',
+		headerName: 'نام خانوادگی',
+		width: 200,
+	},
+	{
+		field: 'drugType',
+		headerName: 'نوع مصرف',
+		width: 200,
+		valueGetter: v =>
+			v.value === 'Metadon'
+				? 'متادون'
+				: v.value === 'Opium'
+				? 'اوپیوم'
+				: 'B2',
+	},
+	// {
+	// 	field: 'action',
+	// 	headerName: 'کنترل',
+	// 	sortable: false,
+	// 	width: 200,
+	// 	disableClickEventBubbling: true,
+	// 	renderCell: params => {
+	// 		const handleClick = () =>
+	// 			alert(params.row.firstName + ' ' + params.row.lastName);
+	// 		return (
+	// 			<Button
+	// 				onClick={handleClick}
+	// 				variant='outlined'
+	// 				size='small'>
+	// 				نمایش
+	// 			</Button>
+	// 		);
+	// 	},
+	// },
+];

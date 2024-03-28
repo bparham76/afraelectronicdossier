@@ -12,55 +12,6 @@ import DataTable from '../components/DataTable';
 
 const StorageReport = () => {
 	const navigate = useNavigate();
-	const entryListHeader = [
-		{
-			field: 'id',
-			headerName: 'شماره',
-			width: 100,
-		},
-		{
-			field: 'dateTime',
-			headerName: 'تاریخ',
-			width: 200,
-		},
-		{
-			field: 'Opium',
-			headerName: 'اوپیوم',
-			width: 70,
-		},
-		{
-			field: 'metadon',
-			headerName: 'متادون',
-			width: 70,
-		},
-		{
-			field: 'B2',
-			headerName: 'B2',
-			width: 70,
-		},
-	];
-	const consumeListHeader = [
-		{
-			field: 'id',
-			headerName: 'شماره',
-			width: 100,
-		},
-		{
-			field: 'dateTime',
-			headerName: 'تاریخ',
-			width: 200,
-		},
-		{
-			field: 'drugType',
-			headerName: 'نوع دارو',
-			width: 100,
-		},
-		{
-			field: 'amount',
-			headerName: 'مقدار',
-			width: 100,
-		},
-	];
 	return (
 		<Fade
 			in={true}
@@ -128,3 +79,53 @@ const StorageReport = () => {
 };
 
 export default StorageReport;
+
+const entryListHeader = [
+	{
+		field: 'id',
+		headerName: 'شماره',
+		width: 100,
+	},
+	{
+		field: 'dateTime',
+		headerName: 'تاریخ',
+		width: 200,
+	},
+	{
+		field: 'Opium',
+		headerName: 'اوپیوم',
+		width: 70,
+	},
+	{
+		field: 'metadon',
+		headerName: 'متادون',
+		width: 70,
+	},
+	{
+		field: 'B2',
+		headerName: 'B2',
+		width: 70,
+	},
+];
+const consumeListHeader = [
+	{
+		field: 'id',
+		headerName: 'شماره',
+		width: 100,
+	},
+	{
+		field: 'dateTime',
+		headerName: 'تاریخ',
+		width: 200,
+	},
+	{
+		field: 'drugType',
+		headerName: 'نوع دارو',
+		width: 100,
+	},
+	{
+		field: 'amount',
+		headerName: 'مقدار',
+		width: 100,
+	},
+];

@@ -16,7 +16,7 @@ const patientRouter = express.Router();
 patientRouter.use('/', AuthMiddleware());
 
 patientRouter.post('/', createPatient);
-patientRouter.get('/', getAllPatients);
+patientRouter.get('/all', getAllPatients);
 patientRouter.get('/:id', getSinglePatient);
 patientRouter.get('/s/:query', findPatients);
 patientRouter.get('/s/s/:query', findPatientsForSelector);
