@@ -33,6 +33,28 @@ const Settings = () => {
 			onAccept: () => navigate('/settings/user/' + id),
 		});
 
+	const handleCancelUpdateStorage = () =>
+		showDialog({
+			title: 'توجه',
+			caption: 'تغییرات در ظرفیت پذیرش پرونده ثبت نمی شود',
+			onAccept: () => {
+				setSubmitStorageData(false);
+				dispatch({ type: 'full', payload: capacityRef.current });
+			},
+		});
+
+	const handleSubmitStorage = () =>
+		showDialog({
+			title: 'توجه',
+			caption: 'تغییرات در ظرفیت پذیرش پرونده ثبت می شود',
+			onAccept: () => {
+				setSubmitStorageData(true);
+				capacityRef.current = capacity;
+			},
+			// onReject: () =>
+			// 	dispatch({ type: 'full', payload: capacityRef.current }),
+		});
+
 	useEffect(() => {
 		if (!isUsersLoading) return;
 
@@ -266,16 +288,24 @@ const Settings = () => {
 							</Grid>
 							<Grid
 								item
-								xs={4}></Grid>
-							<Grid
-								item
-								xs={4}
+								xs={8}
 								sx={{
 									display: 'flex',
 									justifyContent: 'flex-end',
+									gap: 2,
 								}}>
+								{canUpdateStorage && (
+									<Button
+										onClick={handleCancelUpdateStorage}
+										variant='outlined'
+										size='small'
+										color='error'>
+										انصراف
+									</Button>
+								)}
 								<Button
-									onClick={() => setSubmitStorageData(true)}
+									// onClick={() => setSubmitStorageData(true)}
+									onClick={handleSubmitStorage}
 									disabled={!canUpdateStorage}
 									size='small'
 									variant='contained'

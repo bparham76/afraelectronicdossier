@@ -11,6 +11,8 @@ export function storageReducer(state, action) {
 			const Metadon = action.payload?.find(p => p.drug == 'metadon')?.cap;
 			const Opium = action.payload?.find(p => p.drug == 'opium')?.cap;
 			return { B2: B2, Opium: Opium, Metadon: Metadon };
+		case 'full':
+			return action.payload;
 		default:
 			throw Error('Storage reducer: Invalid data entry.');
 	}
