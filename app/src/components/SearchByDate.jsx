@@ -21,6 +21,13 @@ const SearchByDate = ({ open = false, onClose }) => {
 
 	return (
 		<Dialog
+			slotProps={{
+				backdrop: {
+					sx: {
+						backdropFilter: 'blur(3px)',
+					},
+				},
+			}}
 			onClose={onClose}
 			PaperProps={{ style: { borderRadius: 8 } }}
 			open={open}>

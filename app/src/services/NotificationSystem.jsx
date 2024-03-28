@@ -65,7 +65,15 @@ const NotificationSystem = ({ children }) => {
 					{notifMessage}
 				</Alert>
 			</Snackbar>
-			<Dialog open={showOkCancel}>
+			<Dialog
+				slotProps={{
+					backdrop: {
+						sx: {
+							backdropFilter: 'blur(3px)',
+						},
+					},
+				}}
+				open={showOkCancel}>
 				<DialogTitle>{titleOkCancel}</DialogTitle>
 				<DialogContent>
 					<DialogContentText>{captionOkCancel}</DialogContentText>

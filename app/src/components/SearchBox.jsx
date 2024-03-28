@@ -21,6 +21,13 @@ const SearchBox = ({ content, open, onClose, search, onChange, onCommit }) => {
 
 	return (
 		<Dialog
+			slotProps={{
+				backdrop: {
+					sx: {
+						backdropFilter: 'blur(3px)',
+					},
+				},
+			}}
 			PaperProps={{ style: { borderRadius: 8 } }}
 			open={open}
 			onClose={onCloseHandler}>
