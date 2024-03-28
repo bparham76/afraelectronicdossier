@@ -68,24 +68,27 @@ enum DrugType {
 }
 
 model Patient {
-  id         Int       @id @default(autoincrement())
+  id         Int          @id @default(autoincrement())
   firstName  String
   lastName   String
   birthDate  DateTime
-  nationalID String    @unique
+  nationalID String       @unique
   address    String
   phone      String
   landLine   String
   gender     Gender
-  Dossier    Dossier[]
+  dossier    Dossier[]
+  attachment Attachment[]
 }
 
 model Attachment {
   id          Int      @id @default(autoincrement())
   title       String
   fileAddress String
-  Dossier     Dossier? @relation(fields: [dossierId], references: [id])
+  dossier     Dossier? @relation(fields: [dossierId], references: [id])
   dossierId   Int?
+  patientId   Int?
+  patient     Patient? @relation(fields: [patientId], references: [id])
 }
 
 model Dossier {
@@ -103,7 +106,7 @@ model Dossier {
 model Reception {
   id        Int      @id @default(autoincrement())
   datetime  DateTime @default(now())
-  Dossier   Dossier? @relation(fields: [dossierId], references: [id])
+  dossier   Dossier? @relation(fields: [dossierId], references: [id])
   dossierId Int?
   drugDose  Int
 }
