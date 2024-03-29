@@ -85,15 +85,15 @@ model Attachment {
   id          Int      @id @default(autoincrement())
   title       String
   fileAddress String
-  dossier     Dossier? @relation(fields: [dossierId], references: [id])
+  dossier     Dossier? @relation(fields: [dossierId], references: [id], onDelete: Cascade)
   dossierId   Int?
   patientId   Int?
-  patient     Patient? @relation(fields: [patientId], references: [id])
+  patient     Patient? @relation(fields: [patientId], references: [id], onDelete: Cascade)
 }
 
 model Dossier {
   id            Int          @id @default(autoincrement())
-  patient       Patient?     @relation(fields: [patientId], references: [id])
+  patient       Patient?     @relation(fields: [patientId], references: [id], onDelete: Cascade)
   patientId     Int
   drugType      DrugType
   state         Status
@@ -106,7 +106,7 @@ model Dossier {
 model Reception {
   id        Int      @id @default(autoincrement())
   datetime  DateTime @default(now())
-  dossier   Dossier? @relation(fields: [dossierId], references: [id])
+  dossier   Dossier? @relation(fields: [dossierId], references: [id], onDelete: Cascade)
   dossierId Int?
   drugDose  Int
 }

@@ -1,17 +1,12 @@
-import {
-	Fade,
-	TextField,
-	ButtonGroup,
-	Button,
-	Typography,
-	Grid,
-} from '@mui/material';
+import { Fade, TextField, Button, Typography, Box } from '@mui/material';
+import { FileUpload } from '@mui/icons-material';
 import { Save, Redo } from '@mui/icons-material';
 import { useState, useEffect } from 'react';
 import LoadingOverlay from '../components/LoadingOverlay';
 import { useNotify, useOkCancelDialog } from '../services/NotificationSystem';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuthState } from '../services/auth/AuthenticationSystem';
+import axios from 'axios';
 
 const NewAttachment = () => {
 	const notify = useNotify();
@@ -20,10 +15,13 @@ const NewAttachment = () => {
 	const { id, type } = useParams();
 	const { token } = useAuthState();
 	const [isLoading, setIsLoading] = useState(false);
-	const [canSubmit, setCanSubmit] = useState(true);
+	const [canSubmit, setCanSubmit] = useState(false);
 	const [submitData, setSubmitData] = useState(false);
+	const [title, setTitle] = useState('');
+	const [file, setFile] = useState(null);
 
-	const handleReturn = () => navigate('/patient/' + id);
+	const handleReturn = () =>
+		navigate(type === 'patient' ? '/patient/' + id : '/dossier/' + id);
 
 	const handleGoSubmit = () =>
 		dialog({
@@ -32,36 +30,119 @@ const NewAttachment = () => {
 			onAccept: () => setSubmitData(true),
 		});
 
+	useEffect(() => {
+		if (title.trim().length !== 0 && typeof file !== 'undefined')
+			setCanSubmit(true);
+		else setCanSubmit(false);
+
+		console.table(file);
+	}, [title, file]);
+
+	useEffect(() => {
+		if (!submitData) return;
+
+		const exec = async () => {
+			try {
+				setIsLoading(true);
+				const data = new FormData();
+				data.append('cargo', file);
+				data.append('title', title);
+				data.append('id', id);
+				data.append('type', type === 'patient' ? 'patient' : 'dossier');
+				const response = await axios.post('/attachment', data, {
+					headers: {
+						Authorization: 'Bearer ' + token,
+						'Content-Type': 'multipart/form-data',
+					},
+				});
+				if (response.status < 400) {
+					notify({ msg: 'پیوست با موفقیت بارگذاری گردید' });
+					handleReturn();
+				}
+			} catch (error) {
+				notify({
+					type: 'error',
+					msg: 'خطا در ارتباط با سرور، بارگذاری پیوست انجام نشد.',
+				});
+			} finally {
+				setIsLoading(false);
+			}
+		};
+		exec();
+	}, [submitData]);
+
 	return (
 		<>
-			<LoadingOverlay open={false} />
+			<LoadingOverlay open={isLoading} />
 			<Fade in={true}>
-				<Grid
-					container
-					spacing={4}>
-					<Grid
-						item
-						xs={12}
+				<Box
+					sx={{
+						display: 'flex',
+						justifyContent: 'center',
+						alignItems: 'center',
+						marginTop: 4,
+					}}>
+					<Box
 						sx={{
 							display: 'flex',
-							justifyContent: 'space-between',
+							alignItems: 'center',
+							justifyContent: 'center',
+							gap: 1,
+							flexDirection: 'column',
 						}}>
-						<Typography variant='h4'>افزودن پیوست</Typography>
-						<ButtonGroup>
-							<Button
-								onClick={handleGoSubmit}
-								disabled={!canSubmit}
-								startIcon={<Save />}>
-								ذخیره
-							</Button>
-							<Button
-								onClick={handleReturn}
-								startIcon={<Redo />}>
-								بازگشت
-							</Button>
-						</ButtonGroup>
-					</Grid>
-				</Grid>
+						<Typography
+							mb={1}
+							variant='h4'>
+							افزودن پیوست
+						</Typography>
+						<TextField
+							label='عنوان'
+							value={title}
+							onChange={e => setTitle(e.target.value)}
+						/>
+						<Button
+							variant='outlined'
+							size='large'
+							fullWidth
+							component='label'
+							role={undefined}
+							sx={{
+								borderStyle: 'dashed',
+								borderWidth: 2,
+								paddingTop: 4,
+								paddingBottom: 4,
+								'&:hover': {
+									borderStyle: 'dashed',
+									borderWidth: 2,
+								},
+							}}
+							startIcon={<FileUpload />}>
+							انتخاب فایل
+							<input
+								onChange={e => setFile(e.target.files[0])}
+								type='file'
+								style={{ display: 'none' }}
+							/>
+						</Button>
+						<Button
+							fullWidth
+							size='large'
+							variant='contained'
+							onClick={handleGoSubmit}
+							disabled={!canSubmit}
+							startIcon={<Save />}>
+							ذخیره
+						</Button>
+						<Button
+							fullWidth
+							size='large'
+							variant='outlined'
+							onClick={handleReturn}
+							startIcon={<Redo />}>
+							بازگشت
+						</Button>
+					</Box>
+				</Box>
 			</Fade>
 		</>
 	);

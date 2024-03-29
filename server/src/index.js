@@ -10,6 +10,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cors());
+app.use('/static', express.static('attachments'));
 
 app.use('/auth', authRouter);
 app.use('/patient', patientRouter);

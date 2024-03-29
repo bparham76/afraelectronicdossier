@@ -1,27 +1,30 @@
 import prisma from '../utils/prisma.js';
+import fs from 'fs/promises';
+import path from 'path/win32';
 
 export async function createAttachment(req, res) {
 	try {
-	} catch (error) {
-		console.log(error);
-		res.status(500).json();
-	} finally {
-		return;
-	}
-}
+		const cargo = req.file;
+		const { id, type, title } = req.body;
+		if (type === 'patient') {
+			await prisma.attachment.create({
+				data: {
+					title: title,
+					fileAddress: cargo.filename,
+					patient: { connect: { id: parseInt(id) } },
+				},
+			});
+		} else if (type === 'dossier') {
+			await prisma.attachment.create({
+				data: {
+					title: title,
+					fileAddress: cargo.filename,
+					dossier: { connect: { id: parseInt(id) } },
+				},
+			});
+		} else res.status(500).json();
 
-export async function getAttachment(req, res) {
-	try {
-	} catch (error) {
-		console.log(error);
-		res.status(500).json();
-	} finally {
-		return;
-	}
-}
-
-export async function updateAttachment(req, res) {
-	try {
+		res.status(201).json();
 	} catch (error) {
 		console.log(error);
 		res.status(500).json();
@@ -32,6 +35,12 @@ export async function updateAttachment(req, res) {
 
 export async function deleteAttachment(req, res) {
 	try {
+		const { id } = req.params;
+		const attachment = await prisma.attachment.delete({
+			where: { id: parseInt(id) },
+		});
+		await fs.unlink(path.join('attachments', attachment.fileAddress));
+		res.status(204).json();
 	} catch (error) {
 		console.log(error);
 		res.status(500).json();

@@ -24,6 +24,7 @@ import { useAuthState } from '../services/auth/AuthenticationSystem';
 import { useParams } from 'react-router-dom';
 import DataTable from '../components/DataTable';
 import { months } from '../data/calendar';
+import ViewAttachment from '../components/ViewAttachment';
 
 const ViewPatient = () => {
 	const navigate = useNavigate();
@@ -32,10 +33,13 @@ const ViewPatient = () => {
 	const { token } = useAuthState();
 	const { id } = useParams();
 	const [data, dispatch] = useReducer(patientReducer, patientData);
+	const [attachments, setAttachments] = useState([]);
 	const [isEdit, setIsEdit] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [canSubmit, setCanSubmit] = useState(false);
 	const [submitData, setSubmitData] = useState(false);
+	const [showAttachment, setShowAttachment] = useState(false);
+	const [currentFile, setCurrentFile] = useState('');
 	const dialog = useOkCancelDialog();
 
 	const handleGoEdit = () =>
@@ -89,6 +93,7 @@ const ViewPatient = () => {
 						type: 'init',
 						payload: response.data.data,
 					});
+					setAttachments(response.data.data.attachment);
 				}
 			} catch (error) {
 				notify({
@@ -154,9 +159,88 @@ const ViewPatient = () => {
 		else setCanSubmit(true);
 	}, [data]);
 
+	const handleDeleteAttachment = (a_id, a_title) =>
+		dialog({
+			title: 'توجه',
+			caption: `پیوست با عنوان "${a_title}" حذف می شود.`,
+			onAccept: async () => {
+				try {
+					setIsLoading(true);
+					const response = await axios.delete('/attachment/' + a_id, {
+						headers: {
+							Authorization: 'Bearer ' + token,
+						},
+					});
+					if (response.status < 400) {
+						setAttachments(prev => prev.filter(i => i.id !== a_id));
+						notify({ msg: 'پیوست با موفقیت حذف شد.' });
+					}
+				} catch {
+					notify({
+						type: 'error',
+						msg: 'عدم برقراری ارتباط با سرور، پیوست حذف نشد.',
+					});
+				} finally {
+					setIsLoading(false);
+				}
+			},
+		});
+
+	const attachmentHeader = [
+		{
+			field: 'id',
+			headerName: 'شماره',
+			width: 100,
+		},
+		{
+			field: 'title',
+			headerName: 'عنوان',
+			width: 300,
+		},
+		{
+			field: 'action',
+			headerName: '',
+			width: 200,
+			sortable: false,
+			renderCell: params => {
+				return (
+					<>
+						<Button
+							onClick={() => {
+								setCurrentFile(params.row.fileAddress);
+								setShowAttachment(true);
+							}}
+							sx={{ mr: 1 }}
+							variant='outlined'
+							size='small'>
+							مشاهده
+						</Button>
+						<Button
+							onClick={() =>
+								handleDeleteAttachment(
+									params.row.id,
+									params.row.title
+								)
+							}
+							color='error'
+							variant='outlined'
+							size='small'>
+							حذف
+						</Button>
+					</>
+				);
+			},
+		},
+	];
+
 	return (
 		<>
 			<LoadingOverlay open={isLoading} />
+			<ViewAttachment
+				file={currentFile}
+				onClose={() => setShowAttachment(false)}
+				open={showAttachment}
+			/>
 			<Fade
 				in={true}
 				unmountOnExit>
@@ -551,7 +635,7 @@ const ViewPatient = () => {
 						<DataTable
 							height='50vh'
 							header={attachmentHeader}
-							data={attachmentsData}
+							data={attachments}
 						/>
 					</Grid>
 				</Grid>
@@ -561,45 +645,3 @@ const ViewPatient = () => {
 };
 
 export default ViewPatient;
-
-const attachmentHeader = [
-	{
-		field: 'id',
-		headerName: 'شماره',
-		width: 100,
-	},
-	{
-		field: 'title',
-		headerName: 'عنوان',
-		width: 300,
-	},
-	{
-		field: 'action',
-		headerName: '',
-		width: 200,
-		sortable: false,
-		renderCell: params => {
-			return (
-				<>
-					<Button
-						sx={{ mr: 1 }}
-						variant='outlined'
-						size='small'>
-						مشاهده
-					</Button>
-					<Button
-						color='error'
-						variant='outlined'
-						size='small'>
-						حذف
-					</Button>
-				</>
-			);
-		},
-	},
-];
-
-const attachmentsData = [
-	{ id: 1, title: 'کارت ملی' },
-	{ id: 2, title: 'شناسنامه' },
-];

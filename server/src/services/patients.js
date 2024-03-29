@@ -33,6 +33,9 @@ export async function getSinglePatient(req, res) {
 		const { id } = req.params;
 		const result = await prisma.patient.findFirst({
 			where: { id: { equals: parseInt(id) } },
+			include: {
+				attachment: true,
+			},
 		});
 		const birthDate = moment
 			.from(result.birthDate, 'en')
