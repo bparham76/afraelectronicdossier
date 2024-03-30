@@ -6,7 +6,6 @@ import Receptions from '../../pages/Receptions';
 import Patients from '../../pages/Patients';
 import Storage from '../../pages/Storage';
 import ViewPatient from '../../pages/ViewPatient';
-import EditPatient from '../../pages/EditPatient';
 import NewPatient from '../../pages/NewPatient';
 import NewDossier from '../../pages/NewDossier';
 import ViewDossier from '../../pages/ViewDossier';
@@ -62,10 +61,6 @@ export const superAdminRoutes = [
 	{
 		path: '/patient/:id',
 		element: <ViewPatient />,
-	},
-	{
-		path: '/patient/:id/edit',
-		element: <EditPatient />,
 	},
 	{
 		path: '/patient/new',

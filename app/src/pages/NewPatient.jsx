@@ -187,7 +187,7 @@ const NewPatient = () => {
 								size='small'
 								style={{ width: 100 }}>
 								<MenuItem value={0}>روز</MenuItem>
-								{[...new Array(30)].map((_, i) => (
+								{[...new Array(31)].map((_, i) => (
 									<MenuItem
 										value={i + 1}
 										key={i}>

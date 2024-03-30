@@ -194,6 +194,48 @@ export async function findDossier(req, res) {
 	}
 }
 
+export async function findDossierForNewReception(req, res) {
+	try {
+		const { query } = req.params;
+		const result = await prisma.dossier.findMany({
+			where: {
+				OR: [
+					{ dossierNumber: { contains: query } },
+					{
+						patient: {
+							OR: [
+								{ firstName: { contains: query } },
+								{ lastName: { contains: query } },
+								{ phone: { contains: query } },
+								{ nationalID: { contains: query } },
+							],
+						},
+					},
+				],
+			},
+			select: {
+				id: true,
+				dossierNumber: true,
+				patient: {
+					select: {
+						id: true,
+						firstName: true,
+						lastName: true,
+						nationalID: true,
+					},
+				},
+			},
+		});
+
+		res.status(200).json({ data: result });
+	} catch (error) {
+		console.log(error);
+		res.status(500).json();
+	} finally {
+		return;
+	}
+}
+
 export async function getSingleDossier(req, res) {
 	try {
 		const { id } = req.params;
@@ -256,16 +298,6 @@ export async function updateDossier(req, res) {
 export async function deleteDossier(req, res) {
 	try {
 		const { id } = req.params;
-		if (['SuperAdmin', 'Doctor'].includes(req.user.role))
-			await prisma.dossier.update({
-				where: { id: parseInt(id) },
-				data: { storeState: 'Removed' },
-			});
-		else
-			await prisma.dossier.update({
-				where: { id: parseInt(id) },
-				data: { storeState: 'Hidden' },
-			});
 		res.status(200).json();
 	} catch (error) {
 		console.log(error);

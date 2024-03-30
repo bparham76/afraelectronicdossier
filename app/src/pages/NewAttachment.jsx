@@ -31,11 +31,8 @@ const NewAttachment = () => {
 		});
 
 	useEffect(() => {
-		if (title.trim().length !== 0 && typeof file !== 'undefined')
-			setCanSubmit(true);
+		if (title.trim().length !== 0 && file !== null) setCanSubmit(true);
 		else setCanSubmit(false);
-
-		console.table(file);
 	}, [title, file]);
 
 	useEffect(() => {

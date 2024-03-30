@@ -459,7 +459,7 @@ const ViewPatient = () => {
 														payload: e.target.value,
 													})
 												}>
-												{[...new Array(30)].map(
+												{[...new Array(31)].map(
 													(_, i) => (
 														<MenuItem
 															value={i + 1 + ''}

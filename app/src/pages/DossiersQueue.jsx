@@ -76,18 +76,28 @@ const DossiersQueue = () => {
 			width: 200,
 			disableClickEventBubbling: true,
 			renderCell: params => {
-				if (
+				const can =
 					dossierCaps.find(
 						c => c.drug === params.row.drugType.toLowerCase()
-					).cap > 0
-				)
-					return (
+					).cap > 0;
+				return (
+					<>
 						<Button
+							color='error'
 							variant='outlined'
 							size='small'>
-							تشکیل
+							حذف
 						</Button>
-					);
+						{can && (
+							<Button
+								sx={{ marginLeft: 1 }}
+								variant='outlined'
+								size='small'>
+								تشکیل
+							</Button>
+						)}
+					</>
+				);
 			},
 		},
 	];

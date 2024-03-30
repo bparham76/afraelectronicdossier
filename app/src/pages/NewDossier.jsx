@@ -25,6 +25,9 @@ const NewDossier = () => {
 	const [isCapLoading, setIsCapLoading] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [submitData, setSubmitData] = useState(false);
+	const [hasPatientActiveDossier, setHasPatientActiveDossier] =
+		useState(false);
+	const [forbiddenPatients, setForbiddenPatients] = useState([]);
 	const [patientList, setPatientList] = useState([
 		{
 			label: 'برای جستجو عبارتی وارد کنید',
@@ -80,7 +83,6 @@ const NewDossier = () => {
 
 	const execSearch = useCallback(async () => {
 		try {
-			setIsSearchLoading(true);
 			const response = await axios.get('/patient/s/s/' + searchString, {
 				headers: {
 					Authorization: 'Bearer ' + token,
@@ -89,12 +91,13 @@ const NewDossier = () => {
 			if (response.status < 300) {
 				const tmp = response.data.data.map(item => ({
 					label:
-						item.firstName +
+						item?.firstName +
 						' ' +
-						item.lastName +
+						item?.lastName +
 						' - ' +
-						item.nationalID,
-					id: item.id,
+						item?.nationalID,
+					id: item?.id,
+					dossier: item?.dossier,
 				}));
 				setPatientList(tmp);
 			}
@@ -121,6 +124,7 @@ const NewDossier = () => {
 			return;
 		}
 
+		setIsSearchLoading(true);
 		if (searchTimeout) {
 			clearTimeout(searchTimeout);
 		}
@@ -168,6 +172,31 @@ const NewDossier = () => {
 		execSubmit();
 	}, [submitData]);
 
+	useEffect(() => {
+		if (patient < 0) {
+			setHasPatientActiveDossier(false);
+			return;
+		}
+
+		forbiddenPatients?.forEach(
+			fp => fp?.id === patient && setHasPatientActiveDossier(true)
+		);
+	}, [patient]);
+
+	useEffect(() => {
+		if (patientList[0]?.id < 0) {
+			setForbiddenPatients([]);
+			return;
+		}
+		setForbiddenPatients(
+			patientList?.filter(
+				pl =>
+					pl?.dossier?.filter(d => d?.state === 'Active')?.length !==
+					0
+			)
+		);
+	}, [patientList]);
+
 	return (
 		<>
 			<LoadingOverlay open={isLoading || isCapLoading} />
@@ -206,65 +235,85 @@ const NewDossier = () => {
 							noOptionsText='موردی یافت نشد.'
 							renderInput={params => (
 								<TextField
-									onChange={e => {
-										setSearchString(e.target.value);
-									}}
+									onChange={e =>
+										setSearchString(e.target.value)
+									}
 									value={searchString}
 									{...params}
 									label='انتخاب بیمار'
 								/>
 							)}
 						/>
-						<Select
-							value={drugType}
-							onChange={e => setDrugType(e.target.value)}
-							size='small'>
-							<MenuItem value='none'>-- داروی مصرفی --</MenuItem>
-							<MenuItem value='B2'>B2</MenuItem>
-							<MenuItem value='Metadon'>متادون</MenuItem>
-							<MenuItem value='Opium'>اوپیوم</MenuItem>
-						</Select>
-						<Collapse in={!isCapacityFull}>
-							<TextField
-								fullWidth
-								size='small'
-								label='شماره پرونده'
-								variant='outlined'
-								value={number}
-								onChange={e =>
-									setNumber(
-										/^[0-9]{0,10}$/.test(e.target.value)
-											? e.target.value
-											: number
-									)
-								}
-							/>
+						<Collapse in={!hasPatientActiveDossier}>
+							<Box
+								sx={{
+									display: 'flex',
+									gap: 1,
+									flexDirection: 'column',
+								}}>
+								<Select
+									value={drugType}
+									onChange={e => setDrugType(e.target.value)}
+									size='small'>
+									<MenuItem value='none'>
+										-- داروی مصرفی --
+									</MenuItem>
+									<MenuItem value='B2'>B2</MenuItem>
+									<MenuItem value='Metadon'>متادون</MenuItem>
+									<MenuItem value='Opium'>اوپیوم</MenuItem>
+								</Select>
+								<Collapse in={!isCapacityFull}>
+									<TextField
+										fullWidth
+										size='small'
+										label='شماره پرونده'
+										variant='outlined'
+										value={number}
+										onChange={e =>
+											setNumber(
+												/^[0-9]{0,10}$/.test(
+													e.target.value
+												)
+													? e.target.value
+													: number
+											)
+										}
+									/>
+								</Collapse>
+								<Collapse in={isCapacityFull}>
+									<Typography variant='body1'>
+										ظرفیت برای پذیرش در گروه
+										{drugType === 'Metadon'
+											? ' متادون '
+											: drugType === 'Opium'
+											? ' اوپیوم '
+											: ' B2 '}
+										تکمیل است.
+									</Typography>
+									<Typography variant='body1'>
+										در صورت ثبت، پرونده به صف تشکیل وارد می
+										شود.
+									</Typography>
+								</Collapse>
+								<Button
+									disabled={
+										drugType === 'none' ||
+										patient < 0 ||
+										(!isCapacityFull && number.length === 0)
+									}
+									onClick={() => setSubmitData(true)}
+									variant='contained'
+									startIcon={<Save />}>
+									ذخیره
+								</Button>
+							</Box>
 						</Collapse>
-						<Collapse in={isCapacityFull}>
+						<Collapse in={hasPatientActiveDossier}>
 							<Typography variant='body1'>
-								ظرفیت برای پذیرش در گروه
-								{drugType === 'Metadon'
-									? ' متادون '
-									: drugType === 'Opium'
-									? ' اوپیوم '
-									: ' B2 '}
-								تکمیل است.
-							</Typography>
-							<Typography variant='body1'>
-								در صورت ثبت، پرونده به صف تشکیل وارد می شود.
+								بیمار انتخاب شده هم اکنون یک پرونده فعال
+								<br /> در سیستم دارد.
 							</Typography>
 						</Collapse>
-						<Button
-							disabled={
-								drugType === 'none' ||
-								patient < 0 ||
-								(!isCapacityFull && number.length === 0)
-							}
-							onClick={() => setSubmitData(true)}
-							variant='contained'
-							startIcon={<Save />}>
-							ذخیره
-						</Button>
 						<Button
 							onClick={() => navigate('/dossiers')}
 							variant='outlined'

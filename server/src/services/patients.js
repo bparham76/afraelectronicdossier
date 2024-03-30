@@ -137,6 +137,7 @@ export async function findPatientsForSelector(req, res) {
 				firstName: true,
 				lastName: true,
 				nationalID: true,
+				dossier: true,
 			},
 		});
 
