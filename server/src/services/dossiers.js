@@ -131,7 +131,7 @@ export async function setDrugCapacity(req, res) {
 export async function createDossier(req, res) {
 	try {
 		const { patientId, drugType, inQueue, number } = req.body;
-		//check for duplicate
+		//TODO: check for duplicate dossiers - handled in frontend
 		await prisma.dossier.create({
 			data: {
 				patientId: patientId,

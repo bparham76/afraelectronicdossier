@@ -35,8 +35,13 @@ const NewReception = () => {
 	const [day, setDay] = useState(0);
 	const [month, setMonth] = useState(0);
 	const [year, setYear] = useState(0);
+	const [dose, setDose] = useState(0);
 	const [searchString, setSearchString] = useState('');
 	const [searchTimeout, setSearchTimeout] = useState(null);
+	const [submitData, setSubmitData] = useState(false);
+
+	//TODO: get storage information
+	//TODO: get patient restictions based on dose and date
 
 	const execSearch = useCallback(async () => {
 		try {
@@ -52,7 +57,7 @@ const NewReception = () => {
 							d?.patient?.lastName +
 							'، ' +
 							d?.dossierNumber,
-						id: d?.id,
+						id: d?.dossierNumber,
 					}))
 				);
 			}
@@ -83,6 +88,39 @@ const NewReception = () => {
 	useEffect(() => {
 		setDossierList(emptyList);
 	}, [dossier]);
+
+	useEffect(() => {
+		if (!submitData) return;
+
+		const exec = async () => {
+			try {
+				setIsLoading(true);
+				const response = await axios.post(
+					'/reception',
+					{ dossier, day, month, year, dose },
+					{
+						headers: {
+							Authorization: 'Bearer ' + token,
+						},
+					}
+				);
+				if (response.status < 400) {
+					notify({ msg: 'ثبت مراجعه با موفقیت انجام شد.' });
+					navigate('/receptions');
+				}
+			} catch (error) {
+				notify({
+					type: 'error',
+					msg: 'خطا در برقراری ارتباط با سرور. ثبت اطلاعات انجام نشد.',
+				});
+			} finally {
+				setIsLoading(false);
+				setSubmitData(false);
+			}
+		};
+
+		exec();
+	}, [submitData]);
 
 	return (
 		<>
@@ -125,8 +163,8 @@ const NewReception = () => {
 						/>
 						<Box
 							sx={{
-								marginTop: 2,
-								marginBottom: 2,
+								marginTop: 1,
+								marginBottom: 1,
 								display: 'flex',
 								gap: 2,
 								alignItems: 'center',
@@ -176,12 +214,26 @@ const NewReception = () => {
 								))}
 							</Select>
 						</Box>
+						<TextField
+							size='small'
+							label='مقدار تجویز'
+							value={parseInt(dose) || ''}
+							onChange={e =>
+								setDose(prev =>
+									/^[\d]{0,5}$/.test(e.target.value)
+										? e.target.value
+										: prev
+								)
+							}
+						/>
 						<Button
+							onClick={() => setSubmitData(true)}
 							disabled={
 								dossier < 0 ||
 								day === 0 ||
 								month === 0 ||
-								year === 0
+								year === 0 ||
+								dose === 0
 							}
 							variant='contained'
 							startIcon={<Save />}>

@@ -3,12 +3,18 @@ import { Home, Add, Search } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import DataTable from '../components/DataTable';
 import LoadingOverlay from '../components/LoadingOverlay';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import SearchByDate from '../components/SearchByDate';
+import { useAuthState } from '../services/auth/AuthenticationSystem';
+import { useNotify } from '../services/NotificationSystem';
+import axios from 'axios';
 
 const Receptions = () => {
 	const navigate = useNavigate();
-	const [isLoading, setIsLoading] = useState(false);
+	const notify = useNotify();
+	const { token } = useAuthState();
+	const [isLoading, setIsLoading] = useState(true);
+	const [data, setData] = useState([]);
 	const [searchString, setSearchString] = useState('');
 	const [showSearchDialog, setShowSearchDialog] = useState(false);
 	const handleShowSearch = () => setShowSearchDialog(true);
@@ -17,6 +23,26 @@ const Receptions = () => {
 		alert(searchString);
 		setIsLoading(true);
 	};
+
+	useEffect(() => {
+		const getData = async () => {
+			try {
+				const response = await axios.get('/reception', {
+					headers: { Authorization: 'Bearer ' + token },
+				});
+
+				if (response.status < 400) setData(response.data.data);
+			} catch (error) {
+				notify({
+					type: 'error',
+					msg: 'خطا در برقراری ارتباط با سرور.',
+				});
+			} finally {
+				setIsLoading(false);
+			}
+		};
+		getData();
+	}, []);
 
 	return (
 		<>
@@ -69,7 +95,10 @@ const Receptions = () => {
 					<Grid
 						item
 						xs={12}>
-						<DataTable header={gridHeader} />
+						<DataTable
+							header={gridHeader}
+							data={data}
+						/>
 					</Grid>
 				</Grid>
 			</Fade>
@@ -82,24 +111,39 @@ export default Receptions;
 
 const gridHeader = [
 	{
-		field: 'id',
-		headerName: 'شماره',
-		width: 100,
+		field: 'number',
+		headerName: 'شماره پرونده',
+		width: 200,
 	},
 	{
-		field: 'dateTime',
+		field: 'date',
 		headerName: 'تاریخ',
 		width: 200,
 	},
 	{
-		field: 'patientName',
+		field: 'name',
 		headerName: 'نام بیمار',
 		width: 200,
 	},
 	,
 	{
-		field: 'drugDose',
+		field: 'dose',
 		headerName: 'مقدار تجویز',
 		width: 200,
+	},
+	{
+		field: 'control',
+		headerName: 'کنترل',
+		width: 200,
+		renderCell: params => (
+			<>
+				<Button
+					size='small'
+					variant='outlined'
+					color='error'>
+					حذف
+				</Button>
+			</>
+		),
 	},
 ];
