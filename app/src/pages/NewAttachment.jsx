@@ -1,12 +1,20 @@
-import { Fade, TextField, Button, Typography, Box } from '@mui/material';
+import {
+	Fade,
+	TextField,
+	Button,
+	Typography,
+	Box,
+	Collapse,
+} from '@mui/material';
 import { FileUpload } from '@mui/icons-material';
-import { Save, Redo } from '@mui/icons-material';
-import { useState, useEffect } from 'react';
+import { Save, Redo, Close } from '@mui/icons-material';
+import { useState, useEffect, useRef } from 'react';
 import LoadingOverlay from '../components/LoadingOverlay';
 import { useNotify, useOkCancelDialog } from '../services/NotificationSystem';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuthState } from '../services/auth/AuthenticationSystem';
 import axios from 'axios';
+import ViewAttachment from '../components/ViewAttachment';
 
 const NewAttachment = () => {
 	const notify = useNotify();
@@ -19,6 +27,8 @@ const NewAttachment = () => {
 	const [submitData, setSubmitData] = useState(false);
 	const [title, setTitle] = useState('');
 	const [file, setFile] = useState(null);
+	const [showFile, setShowFile] = useState(false);
+	const fileNameRef = useRef();
 
 	const handleReturn = () =>
 		navigate(type === 'patient' ? '/patient/' + id : '/dossier/' + id);
@@ -70,6 +80,12 @@ const NewAttachment = () => {
 
 	return (
 		<>
+			<ViewAttachment
+				isLocal
+				open={showFile}
+				onClose={() => setShowFile(false)}
+				file={file && URL.createObjectURL(file)}
+			/>
 			<LoadingOverlay open={isLoading} />
 			<Fade in={true}>
 				<Box
@@ -99,10 +115,17 @@ const NewAttachment = () => {
 						/>
 						<Button
 							variant='outlined'
+							color={file ? 'error' : 'primary'}
 							size='large'
 							fullWidth
 							component='label'
 							role={undefined}
+							onClick={e => {
+								if (file) {
+									e.preventDefault();
+									setFile(null);
+								}
+							}}
 							sx={{
 								borderStyle: 'dashed',
 								borderWidth: 2,
@@ -113,14 +136,40 @@ const NewAttachment = () => {
 									borderWidth: 2,
 								},
 							}}
-							startIcon={<FileUpload />}>
-							انتخاب فایل
-							<input
-								onChange={e => setFile(e.target.files[0])}
-								type='file'
-								style={{ display: 'none' }}
-							/>
+							startIcon={file ? <Close /> : <FileUpload />}>
+							{file ? 'حذف فایل' : 'انتخاب فایل'}
+							{!file && (
+								<input
+									onChange={e => {
+										setFile(e.target.files[0]);
+										fileNameRef.current =
+											e.target.files[0].name;
+									}}
+									type='file'
+									style={{ display: 'none' }}
+								/>
+							)}
 						</Button>
+						<Collapse
+							in={file}
+							unmountOnExit>
+							<Typography
+								style={{
+									textAlign: 'center',
+									display: 'block',
+									width: 200,
+									wordWrap: 'break-word',
+								}}
+								variant='body1'>
+								{fileNameRef.current}
+							</Typography>
+							<Button
+								size='small'
+								fullWidth
+								onClick={() => setShowFile(true)}>
+								نمایش
+							</Button>
+						</Collapse>
 						<Button
 							fullWidth
 							size='large'

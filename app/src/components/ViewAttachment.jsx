@@ -2,7 +2,7 @@ import { Zoom, Box, Button, Backdrop } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import { useState, useEffect } from 'react';
 
-const ViewAttachment = ({ file, open = false, onClose }) => {
+const ViewAttachment = ({ file, open = false, onClose, isLocal = false }) => {
 	const [show, setShow] = useState(false);
 
 	const exitView = () => {
@@ -15,6 +15,8 @@ const ViewAttachment = ({ file, open = false, onClose }) => {
 		setTimeout(() => {
 			setShow(true);
 		}, 100);
+
+		console.log(file);
 	}, [open]);
 
 	return (
@@ -36,11 +38,13 @@ const ViewAttachment = ({ file, open = false, onClose }) => {
 							objectFit: 'contain',
 						}}
 						src={
-							document
-								.querySelector('#afra_app')
-								?.getAttribute('data-server') +
-							'/static/' +
-							file
+							isLocal
+								? file
+								: document
+										.querySelector('#afra_app')
+										?.getAttribute('data-server') +
+								  '/static/' +
+								  file
 						}
 					/>
 				</Zoom>

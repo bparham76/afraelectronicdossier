@@ -59,6 +59,7 @@ const ViewPatient = () => {
 								});
 							}, 1000);
 						setIsEdit(prev => !prev);
+						setCanSubmit(false);
 					},
 			  });
 
@@ -113,6 +114,7 @@ const ViewPatient = () => {
 			try {
 				setIsLoading(true);
 				setSubmitData(false);
+				setCanSubmit(false);
 				const response = await axios.put('/patient', data, {
 					headers: {
 						Authorization: 'Bearer ' + token,
