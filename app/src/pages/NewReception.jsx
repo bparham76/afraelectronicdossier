@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import { Redo, Save } from '@mui/icons-material';
 import { months } from '../data/calendar';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useState, useEffect, useCallback } from 'react';
 import LoadingOverlay from '../components/LoadingOverlay';
 import { useNotify } from '../services/NotificationSystem';
@@ -39,6 +39,8 @@ const NewReception = () => {
 	const [searchString, setSearchString] = useState('');
 	const [searchTimeout, setSearchTimeout] = useState(null);
 	const [submitData, setSubmitData] = useState(false);
+	const dossier_id = useSearchParams()[0].get('dossier_id');
+	const [singleDossier, setSingleDossier] = useState(null);
 
 	//TODO: get storage information
 	//TODO: get patient restictions based on dose and date
@@ -73,6 +75,8 @@ const NewReception = () => {
 	}, [searchString]);
 
 	useEffect(() => {
+		if (dossier_id) return;
+
 		if (searchString.trim().length === 0) {
 			setDossierList(emptyList);
 			return;
@@ -106,7 +110,9 @@ const NewReception = () => {
 				);
 				if (response.status < 400) {
 					notify({ msg: 'ثبت مراجعه با موفقیت انجام شد.' });
-					navigate('/receptions');
+					navigate(
+						dossier_id ? '/dossier/' + dossier_id : '/receptions'
+					);
 				}
 			} catch (error) {
 				notify({
@@ -121,6 +127,40 @@ const NewReception = () => {
 
 		exec();
 	}, [submitData]);
+
+	useEffect(() => {
+		if (!dossier_id) return;
+
+		const getDossier = async () => {
+			try {
+				setIsLoading(true);
+				const response = await axios.get('/dossier/g/' + dossier_id, {
+					headers: {
+						Authorization: 'Bearer ' + token,
+					},
+				});
+				if (response.status < 400) {
+					setDossier(response.data.data.dossierNumber);
+					setSingleDossier(
+						response.data.data.patient.firstName +
+							' ' +
+							response.data.data.patient.lastName +
+							', ' +
+							response.data.data.dossierNumber
+					);
+				}
+			} catch (error) {
+				notify({
+					type: 'error',
+					msg: 'خطا در برقراری ارتباط با سرور، اطلاعات دریافت نشد.',
+				});
+			} finally {
+				setIsLoading(false);
+			}
+		};
+
+		getDossier();
+	}, []);
 
 	return (
 		<>
@@ -142,25 +182,35 @@ const NewReception = () => {
 							flexDirection: 'column',
 						}}>
 						<Typography variant='h4'>ثبت مراجعه جدید</Typography>
-						<Autocomplete
-							size='small'
-							options={dossierList}
-							onChange={(e, v) => setDossier(v ? v?.id : -1)}
-							getOptionDisabled={option => option.id === -1}
-							loading={isSearchLoading}
-							loadingText='در حال جستجو...'
-							noOptionsText='موردی یافت نشد.'
-							renderInput={params => (
-								<TextField
-									{...params}
-									label='انتخاب پرونده'
-									value={searchString}
-									onChange={e =>
-										setSearchString(e.target.value)
-									}
-								/>
-							)}
-						/>
+						{!dossier_id && (
+							<Autocomplete
+								size='small'
+								options={dossierList}
+								onChange={(e, v) => setDossier(v ? v?.id : -1)}
+								getOptionDisabled={option => option.id === -1}
+								loading={isSearchLoading}
+								loadingText='در حال جستجو...'
+								noOptionsText='موردی یافت نشد.'
+								renderInput={params => (
+									<TextField
+										{...params}
+										label='انتخاب پرونده'
+										value={searchString}
+										onChange={e =>
+											setSearchString(e.target.value)
+										}
+									/>
+								)}
+							/>
+						)}
+						{dossier_id && (
+							<TextField
+								disabled
+								size='small'
+								helperText='پرونده منتخب'
+								value={singleDossier}
+							/>
+						)}
 						<Box
 							sx={{
 								marginTop: 1,
@@ -240,7 +290,13 @@ const NewReception = () => {
 							ذخیره
 						</Button>
 						<Button
-							onClick={() => navigate('/receptions')}
+							onClick={() =>
+								navigate(
+									dossier_id
+										? '/dossier/' + dossier_id
+										: '/receptions'
+								)
+							}
 							variant='outlined'
 							startIcon={<Redo />}>
 							بازگشت

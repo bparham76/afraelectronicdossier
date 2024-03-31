@@ -1,4 +1,5 @@
 import prisma from '../utils/prisma.js';
+import moment from 'jalali-moment';
 
 export async function checkDossierCapacity(req, res) {
 	try {
@@ -177,6 +178,7 @@ export async function findDossier(req, res) {
 						firstName: true,
 						lastName: true,
 						id: true,
+						phone: true,
 					},
 				},
 				id: true,
@@ -239,15 +241,44 @@ export async function findDossierForNewReception(req, res) {
 export async function getSingleDossier(req, res) {
 	try {
 		const { id } = req.params;
+		// const { queue } = req.query;
 		const result = await prisma.dossier.findFirst({
-			where: { id: { equals: parseInt(id) } },
+			where: {
+				id: { equals: parseInt(id) },
+				// inQueue: queue ? true : false,
+			},
 			include: {
 				patient: true,
 				records: true,
 				attachments: true,
 			},
 		});
-		res.status(200).json({ data: result });
+
+		const birthDate = moment
+			.from(result.patient.birthDate, 'en')
+			.format('jYYYY/jM/jD');
+
+		delete result.patient.birthDate;
+
+		const records = result.records;
+
+		delete result.records;
+
+		const tempRecords = records.map(r => {
+			const datetime = moment
+				.from(r.datetime, 'en')
+				.format('jYYYY/jM/jD');
+			delete r.datetime;
+			return { ...r, datetime: datetime };
+		});
+
+		res.status(200).json({
+			data: {
+				...result,
+				patient: { ...result.patient, birthDate: birthDate },
+				records: [...tempRecords],
+			},
+		});
 	} catch (error) {
 		console.log(error);
 		res.status(500).json();

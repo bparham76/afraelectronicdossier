@@ -71,10 +71,11 @@ const DossiersQueue = () => {
 
 		{
 			field: 'action',
-			headerName: 'کنترل',
+			headerName: '',
 			sortable: false,
 			width: 200,
 			disableClickEventBubbling: true,
+			sortable: false,
 			renderCell: params => {
 				const can =
 					dossierCaps.find(
@@ -82,25 +83,35 @@ const DossiersQueue = () => {
 					).cap > 0;
 				return (
 					<>
-						<Button
-							color='error'
-							variant='outlined'
-							size='small'>
-							حذف
-						</Button>
 						{can && (
 							<Button
-								sx={{ marginLeft: 1 }}
+								onClick={e => {
+									e.stopPropagation();
+									alert('create dossier');
+								}}
 								variant='outlined'
 								size='small'>
 								تشکیل
 							</Button>
 						)}
+						<Button
+							sx={{ marginLeft: 1 }}
+							onClick={e => {
+								e.stopPropagation();
+								alert('delete queue dossier');
+							}}
+							color='error'
+							variant='outlined'
+							size='small'>
+							حذف
+						</Button>
 					</>
 				);
 			},
 		},
 	];
+
+	const handleRowClick = row => navigate('/dossier/' + row.id + '?queue=1');
 
 	useEffect(() => {
 		if (!isLoading || isSearch) return;
@@ -166,6 +177,7 @@ const DossiersQueue = () => {
 							firstName: r.patient?.firstName,
 							lastName: r.patient?.lastName,
 							drugType: r?.drugType,
+							phone: r?.patient?.phone,
 						}))
 					);
 				}
@@ -243,6 +255,7 @@ const DossiersQueue = () => {
 						<DataTable
 							header={gridHeader}
 							data={dataList}
+							onRowClick={handleRowClick}
 						/>
 					</Grid>
 				</Grid>

@@ -203,6 +203,7 @@ const ViewPatient = () => {
 			field: 'action',
 			headerName: '',
 			width: 200,
+			disableClickEventBubbling: true,
 			sortable: false,
 			renderCell: params => {
 				return (

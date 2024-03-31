@@ -135,6 +135,8 @@ const gridHeader = [
 		field: 'control',
 		headerName: 'کنترل',
 		width: 200,
+		sortable: false,
+		disableClickEventBubbling: true,
 		renderCell: params => (
 			<>
 				<Button
