@@ -9,7 +9,6 @@ import ViewPatient from '../../pages/ViewPatient';
 import NewPatient from '../../pages/NewPatient';
 import NewDossier from '../../pages/NewDossier';
 import ViewDossier from '../../pages/ViewDossier';
-import EditDossier from '../../pages/EditDossier';
 import ViewReception from '../../pages/ViewReception';
 import NewReception from '../../pages/NewReception';
 import NewUser from '../../pages/NewUser';
@@ -77,10 +76,6 @@ export const superAdminRoutes = [
 	{
 		path: '/dossier/:id',
 		element: <ViewDossier />,
-	},
-	{
-		path: '/dossier/:id/edit',
-		element: <EditDossier />,
 	},
 	{
 		path: '/dossier/new',

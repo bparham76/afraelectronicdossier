@@ -1,4 +1,12 @@
-import { Fade, Grid, Typography, Button, ButtonGroup } from '@mui/material';
+import {
+	Fade,
+	Grid,
+	Typography,
+	Button,
+	ButtonGroup,
+	Badge,
+	Box,
+} from '@mui/material';
 import { Home, Add, Search, Inventory, Close } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -50,6 +58,7 @@ const Dossiers = () => {
 							lastName: r.patient?.lastName,
 							drugType: r?.drugType,
 							dossierNumber: r?.dossierNumber,
+							state: r?.state,
 						}))
 					);
 				}
@@ -87,6 +96,7 @@ const Dossiers = () => {
 							lastName: r.patient?.lastName,
 							drugType: r?.drugType,
 							dossierNumber: r?.dossierNumber,
+							state: r?.state,
 						}))
 					);
 				}
@@ -184,6 +194,26 @@ const Dossiers = () => {
 export default Dossiers;
 
 const gridHeader = [
+	{
+		field: 'state',
+		headerName: 'فعال',
+		width: 100,
+		renderCell: params =>
+			params.value === 'Active' && (
+				<Box
+					sx={{
+						width: 100,
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+					}}>
+					<Badge
+						badgeContent=' '
+						color='primary'
+					/>
+				</Box>
+			),
+	},
 	{
 		field: 'dossierNumber',
 		headerName: 'شماره پرونده',

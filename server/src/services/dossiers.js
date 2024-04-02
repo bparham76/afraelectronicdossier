@@ -1,5 +1,7 @@
 import prisma from '../utils/prisma.js';
 import moment from 'jalali-moment';
+import fs from 'fs/promises';
+import path from 'path/win32';
 
 export async function checkDossierCapacity(req, res) {
 	try {
@@ -156,6 +158,7 @@ export async function findDossier(req, res) {
 		const { query } = req.params;
 		const { queue } = req.query;
 		const result = await prisma.dossier.findMany({
+			orderBy: { dossierNumber: 'desc' },
 			where: {
 				inQueue: queue ? true : false,
 				OR: [
@@ -200,7 +203,9 @@ export async function findDossierForNewReception(req, res) {
 	try {
 		const { query } = req.params;
 		const result = await prisma.dossier.findMany({
+			orderBy: { patient: { lastName: 'asc' } },
 			where: {
+				state: { equals: 'Active' },
 				OR: [
 					{ dossierNumber: { contains: query } },
 					{
@@ -218,6 +223,7 @@ export async function findDossierForNewReception(req, res) {
 			select: {
 				id: true,
 				dossierNumber: true,
+				drugType: true,
 				patient: {
 					select: {
 						id: true,
@@ -292,6 +298,7 @@ export async function getAllDossiers(req, res) {
 		const { queue } = req.query;
 
 		const result = await prisma.dossier.findMany({
+			orderBy: { dossierNumber: 'desc' },
 			where: {
 				inQueue: queue ? true : false,
 			},
@@ -329,6 +336,112 @@ export async function updateDossier(req, res) {
 export async function deleteDossier(req, res) {
 	try {
 		const { id } = req.params;
+
+		const dossier = await prisma.dossier.findFirst({
+			where: { id: parseInt(id) },
+			include: {
+				attachments: true,
+				records: {
+					select: {
+						id: true,
+						transaction: true,
+					},
+				},
+			},
+		});
+
+		let deltaMetadon = 0,
+			deltaOpium = 0,
+			deltaB2 = 0;
+
+		dossier.records.forEach(async r => {
+			switch (r.transaction.drug) {
+				case 'Metadon':
+					deltaMetadon += parseInt(r.transaction.quantity);
+					break;
+				case 'Opium':
+					deltaOpium += parseInt(r.transaction.quantity);
+					break;
+				default:
+					deltaB2 += parseInt(r.transaction.quantity);
+					break;
+			}
+
+			await prisma.storageTransaction.delete({
+				where: { id: r.transaction.id },
+			});
+
+			await prisma.reception.delete({ where: { id: r.id } });
+		});
+
+		deltaB2 !== 0 &&
+			(await prisma.storage.update({
+				where: { drug: 'B2' },
+				data: {
+					quantity: {
+						increment: parseInt(deltaB2),
+					},
+				},
+			}));
+		deltaMetadon !== 0 &&
+			(await prisma.storage.update({
+				where: { drug: 'Metadon' },
+				data: {
+					quantity: {
+						increment: parseInt(deltaMetadon),
+					},
+				},
+			}));
+		deltaOpium !== 0 &&
+			(await prisma.storage.update({
+				where: { drug: 'Opium' },
+				data: {
+					quantity: {
+						increment: parseInt(deltaOpium),
+					},
+				},
+			}));
+
+		dossier.attachments.forEach(async d => {
+			await fs.unlink(path.join('attachments', d.fileAddress));
+			await prisma.attachment.delete({ where: { id: d.id } });
+		});
+
+		await prisma.dossier.delete({ where: { id: parseInt(id) } });
+
+		res.status(200).json();
+	} catch (error) {
+		console.log(error);
+		res.status(500).json();
+	} finally {
+		return;
+	}
+}
+
+export async function chageDossierState(req, res) {
+	try {
+		const { id, state, patientId } = req.params;
+		if (state === 'active') {
+			await prisma.patient.update({
+				where: { id: parseInt(patientId) },
+				data: {
+					dossier: {
+						updateMany: {
+							where: { state: 'Active' },
+							data: { state: 'Suspended' },
+						},
+					},
+				},
+			});
+		}
+		await prisma.dossier.update({
+			where: {
+				id: parseInt(id),
+			},
+			data: {
+				state: state === 'active' ? 'Active' : 'Suspended',
+			},
+		});
 		res.status(200).json();
 	} catch (error) {
 		console.log(error);

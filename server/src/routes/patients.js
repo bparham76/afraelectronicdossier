@@ -21,6 +21,6 @@ patientRouter.get('/:id', getSinglePatient);
 patientRouter.get('/s/:query', findPatients);
 patientRouter.get('/s/s/:query', findPatientsForSelector);
 patientRouter.put('/', updatePatient);
-patientRouter.delete('/', deletePatient);
+patientRouter.delete('/:id', deletePatient);
 
 export default patientRouter;

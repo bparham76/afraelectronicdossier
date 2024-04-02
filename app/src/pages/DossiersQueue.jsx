@@ -5,13 +5,14 @@ import { useState, useEffect } from 'react';
 import SearchBox from '../components/SearchBox';
 import LoadingOverlay from '../components/LoadingOverlay';
 import DataTable from '../components/DataTable';
-import { useNotify } from '../services/NotificationSystem';
+import { useNotify, useOkCancelDialog } from '../services/NotificationSystem';
 import { useAuthState } from '../services/auth/AuthenticationSystem';
 import axios from 'axios';
 
 const DossiersQueue = () => {
 	const navigate = useNavigate();
 	const notify = useNotify();
+	const dialog = useOkCancelDialog();
 	const { token } = useAuthState();
 	const [dataList, setDataList] = useState([]);
 	const [dossierCaps, setDossierCaps] = useState([
@@ -23,6 +24,8 @@ const DossiersQueue = () => {
 	const [isSearch, setIsSearch] = useState(false);
 	const [searchString, setSearchString] = useState('');
 	const [showSearchDialog, setShowSearchDialog] = useState(false);
+	const [deleteDossier, setDeleteDossier] = useState(-1);
+	const [issueDossier, setIssueDossier] = useState(-1);
 	const handleShowSearch = () => {
 		if (searchString.trim() !== '' || isSearch) {
 			setSearchString('');
@@ -81,13 +84,20 @@ const DossiersQueue = () => {
 					dossierCaps.find(
 						c => c.drug === params.row.drugType.toLowerCase()
 					).cap > 0;
+				params.row.can = can;
 				return (
 					<>
 						{can && (
 							<Button
 								onClick={e => {
 									e.stopPropagation();
-									alert('create dossier');
+									dialog({
+										title: 'توجه',
+										caption:
+											'پرونده از صف خارج شده و در سیستم تشکیل می شود.',
+										onAccept: () =>
+											setIssueDossier(params.row.id),
+									});
 								}}
 								variant='outlined'
 								size='small'>
@@ -98,7 +108,12 @@ const DossiersQueue = () => {
 							sx={{ marginLeft: 1 }}
 							onClick={e => {
 								e.stopPropagation();
-								alert('delete queue dossier');
+								dialog({
+									title: 'توجه',
+									caption: 'پرونده از صف حذف می شود.',
+									onAccept: () =>
+										setDeleteDossier(params.row.id),
+								});
 							}}
 							color='error'
 							variant='outlined'
@@ -111,7 +126,8 @@ const DossiersQueue = () => {
 		},
 	];
 
-	const handleRowClick = row => navigate('/dossier/' + row.id + '?queue=1');
+	// const handleRowClick = row =>
+	// 	navigate('/dossier/' + row.id + '?queue=1' + row.can ? '&can=1' : '');
 
 	useEffect(() => {
 		if (!isLoading || isSearch) return;
@@ -194,6 +210,70 @@ const DossiersQueue = () => {
 		search();
 	}, [isLoading]);
 
+	useEffect(() => {
+		if (deleteDossier < 0) return;
+		const exec = async () => {
+			try {
+				setIsLoading(true);
+				const response = await axios.delete(
+					'/dossier/' + deleteDossier,
+					{
+						headers: {
+							Authorization: 'Bearer ' + token,
+						},
+					}
+				);
+				if (response.status < 400) {
+					notify({ msg: 'پرونده با موفقیت از سیستم حذف شد.' });
+					setDataList(list =>
+						list.filter(l => l.id !== deleteDossier)
+					);
+				}
+			} catch (error) {
+				notify({
+					type: 'error',
+					msg: 'خطا در برقراری ارتباط با سرور. پرونده حذف نشد.',
+				});
+			} finally {
+				setIsLoading(false);
+				setDeleteDossier(-1);
+			}
+		};
+		exec();
+	}, [deleteDossier]);
+
+	useEffect(() => {
+		if (issueDossier < 0) return;
+		const exec = async () => {
+			try {
+				setIsLoading(true);
+
+				const response = await axios.put(
+					'/dossier/u/' + issueDossier,
+					{ inQueue: false },
+					{
+						headers: {
+							Authorization: 'Bearer ' + token,
+						},
+					}
+				);
+				if (response.status < 400) {
+					notify({ msg: 'پرونده با موفقیت تشکیل شد.' });
+					navigate('/dossier/' + issueDossier);
+				}
+			} catch (error) {
+				notify({
+					type: 'error',
+					msg: 'خطا در برقراری ارتباط با سرور. پرونده حذف نشد.',
+				});
+			} finally {
+				setIsLoading(false);
+				setIssueDossier(-1);
+			}
+		};
+		exec();
+	}, [issueDossier]);
+
 	return (
 		<>
 			<SearchBox
@@ -255,7 +335,7 @@ const DossiersQueue = () => {
 						<DataTable
 							header={gridHeader}
 							data={dataList}
-							onRowClick={handleRowClick}
+							// onRowClick={handleRowClick}
 						/>
 					</Grid>
 				</Grid>

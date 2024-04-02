@@ -15,7 +15,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { months } from '../data/calendar';
 import LoadingOverlay from '../components/LoadingOverlay';
-import { useNotify } from '../services/NotificationSystem';
+import { useNotify, useOkCancelDialog } from '../services/NotificationSystem';
 import { useReducer, useEffect, useState } from 'react';
 import { patientData, patientReducer } from '../services/data/newPatient';
 import { useAuthState } from '../services/auth/AuthenticationSystem';
@@ -23,6 +23,7 @@ import { useAuthState } from '../services/auth/AuthenticationSystem';
 const NewPatient = () => {
 	const navigate = useNavigate();
 	const notify = useNotify();
+	const dialog = useOkCancelDialog();
 	const { token } = useAuthState();
 	const [data, dispatch] = useReducer(patientReducer, patientData);
 	const [canSend, setCanSend] = useState(false);
@@ -46,7 +47,21 @@ const NewPatient = () => {
 		else setCanSend(false);
 	}, [data]);
 
-	const handleSubmit = () => setSubmitData(true);
+	const handleSubmit = () =>
+		dialog({
+			title: 'توجه',
+			caption: 'بیمار جدید در سیستم ثبت می شود.',
+			onAccept: () => setSubmitData(true),
+		});
+
+	const handleCancel = () =>
+		canSend
+			? dialog({
+					title: 'توجه',
+					caption: 'اطلاعات وارد شده در سیستم ثبت نخواهد شد.',
+					onAccept: () => navigate('/patients'),
+			  })
+			: navigate('/patients');
 
 	useEffect(() => {
 		if (!submitData) return;
@@ -289,7 +304,7 @@ const NewPatient = () => {
 						xs={12}>
 						<ButtonGroup>
 							<Button
-								onClick={() => navigate('/patients')}
+								onClick={handleCancel}
 								variant='outlined'
 								startIcon={<Redo />}>
 								بازگشت

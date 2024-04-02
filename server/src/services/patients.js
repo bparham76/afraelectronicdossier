@@ -1,5 +1,7 @@
 import prisma from '../utils/prisma.js';
 import moment from 'jalali-moment';
+import fs from 'fs/promises';
+import path from 'path/win32';
 
 export async function createPatient(req, res) {
 	try {
@@ -69,7 +71,50 @@ export async function getAllPatients(req, res) {
 	}
 }
 
-export async function deletePatient(req, res) {}
+export async function deletePatient(req, res) {
+	try {
+		const { id } = req.params;
+		const patient = await prisma.patient.findFirst({
+			where: { id: parseInt(id) },
+			include: {
+				attachment: true,
+				dossier: {
+					include: {
+						attachments: true,
+						records: true,
+					},
+				},
+			},
+		});
+
+		patient.attachment.forEach(async a => {
+			await fs.unlink(path.join('attachments', a.fileAddress));
+			await prisma.attachment.delete({ where: { id: a.id } });
+		});
+
+		patient.dossier.forEach(async dossier => {
+			dossier.attachments.forEach(async a => {
+				await fs.unlink(path.join('attachments', a.fileAddress));
+				await prisma.attachment.delete({ where: { id: a.id } });
+			});
+
+			dossier.records.forEach(async rec => {
+				await prisma.reception.delete({ where: { id: rec.id } });
+			});
+
+			await prisma.dossier.delete({ where: { id: dossier.id } });
+		});
+
+		await prisma.patient.delete({ where: { id: patient.id } });
+
+		res.status(204).json();
+	} catch (error) {
+		console.log(error);
+		res.status(500).json();
+	} finally {
+		return;
+	}
+}
 
 export async function updatePatient(req, res) {
 	try {
@@ -101,6 +146,7 @@ export async function findPatients(req, res) {
 	try {
 		const { query } = req.params;
 		const result = await prisma.patient.findMany({
+			orderBy: { lastName: 'asc' },
 			where: {
 				OR: [
 					{ firstName: { contains: query } },
@@ -124,6 +170,7 @@ export async function findPatientsForSelector(req, res) {
 	try {
 		const { query } = req.params;
 		const result = await prisma.patient.findMany({
+			orderBy: { lastName: 'asc' },
 			where: {
 				OR: [
 					{ firstName: { contains: query } },

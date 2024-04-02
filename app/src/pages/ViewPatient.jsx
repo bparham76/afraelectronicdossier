@@ -81,6 +81,55 @@ const ViewPatient = () => {
 			  })
 			: navigate(`/attachment/${id}/patient`);
 
+	const handleDeletePatient = () =>
+		dialog({
+			title: 'توجه',
+			caption: 'بیمار از سیستم حذف می شود.',
+			onAccept: () =>
+				setTimeout(() => {
+					dialog({
+						title: 'توجه',
+						caption:
+							'تمامی پرونده ها، پیوست ها و مراجعات بیمار از سیستم حذف می شود.',
+						onAccept: () =>
+							setTimeout(() => {
+								dialog({
+									title: 'توجه',
+									caption:
+										'پس از حذف اطلاعات از سیتستم، بازگردانی آنها امکان پذیر نخواهد بود.',
+									onAccept: async () => {
+										try {
+											setIsLoading(true);
+											const response = await axios.delete(
+												'/patient/' + id,
+												{
+													headers: {
+														Authorization:
+															'Bearer ' + token,
+													},
+												}
+											);
+											if (response.status < 400) {
+												notify({
+													msg: 'بیمار با موفقیت از سیستم حذف شد.',
+												});
+												navigate('/patients');
+											}
+										} catch (error) {
+											notify({
+												type: 'error',
+												msg: 'خطا در برقراری ارتباط با سرور، بیمار از سیستم حذف نشد.',
+											});
+										} finally {
+											setIsLoading(false);
+										}
+									},
+								});
+							}, 200),
+					});
+				}, 200),
+		});
+
 	useEffect(() => {
 		const getData = async () => {
 			try {
@@ -190,11 +239,6 @@ const ViewPatient = () => {
 
 	const attachmentHeader = [
 		{
-			field: 'id',
-			headerName: 'شماره',
-			width: 100,
-		},
-		{
 			field: 'title',
 			headerName: 'عنوان',
 			width: 300,
@@ -269,6 +313,7 @@ const ViewPatient = () => {
 							{!isEdit ? (
 								<>
 									<Button
+										onClick={handleDeletePatient}
 										variant='outlined'
 										color='error'
 										startIcon={<Delete />}>

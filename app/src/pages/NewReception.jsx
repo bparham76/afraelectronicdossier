@@ -1,9 +1,11 @@
 import {
 	Box,
+	Grid,
 	Select,
 	MenuItem,
 	Fade,
 	Button,
+	ButtonGroup,
 	Typography,
 	Autocomplete,
 	TextField,
@@ -41,6 +43,7 @@ const NewReception = () => {
 	const [submitData, setSubmitData] = useState(false);
 	const dossier_id = useSearchParams()[0].get('dossier_id');
 	const [singleDossier, setSingleDossier] = useState(null);
+	const [description, setDescription] = useState('');
 
 	//TODO: get storage information
 	//TODO: get patient restictions based on dose and date
@@ -58,7 +61,13 @@ const NewReception = () => {
 							' ' +
 							d?.patient?.lastName +
 							'، ' +
-							d?.dossierNumber,
+							d?.dossierNumber +
+							', ' +
+							(d?.drugType === 'Opium'
+								? 'اوپیوم'
+								: d?.drugType === 'Metadon'
+								? 'متادون'
+								: 'B2'),
 						id: d?.dossierNumber,
 					}))
 				);
@@ -101,7 +110,7 @@ const NewReception = () => {
 				setIsLoading(true);
 				const response = await axios.post(
 					'/reception',
-					{ dossier, day, month, year, dose },
+					{ dossier, day, month, year, dose, description },
 					{
 						headers: {
 							Authorization: 'Bearer ' + token,
@@ -146,7 +155,13 @@ const NewReception = () => {
 							' ' +
 							response.data.data.patient.lastName +
 							', ' +
-							response.data.data.dossierNumber
+							response.data.data.dossierNumber +
+							', ' +
+							(response.data.data.drugType === 'Opium'
+								? 'اوپیوم'
+								: response.data.data.drugType === 'Metadon'
+								? 'متادون'
+								: 'B2')
 					);
 				}
 			} catch (error) {
@@ -162,26 +177,64 @@ const NewReception = () => {
 		getDossier();
 	}, []);
 
+	useEffect(() => {
+		console.log(description);
+	}, [description]);
+
 	return (
 		<>
 			<LoadingOverlay open={isLoading} />
 			<Fade
 				in={true}
 				unmountOnExit>
-				<Box
-					sx={{
-						display: 'flex',
-						justifyContent: 'center',
-						alignItems: 'center',
-						marginTop: 4,
-					}}>
-					<Box
-						sx={{
-							display: 'flex',
-							gap: 1,
-							flexDirection: 'column',
-						}}>
-						<Typography variant='h4'>ثبت مراجعه جدید</Typography>
+				<Grid
+					container
+					spacing={4}>
+					<Grid
+						item
+						xs={12}>
+						<Box
+							sx={{
+								display: 'flex',
+								justifyContent: 'space-between',
+								alignItems: 'center',
+							}}>
+							<Typography variant='h4'>
+								ثبت مراجعه جدید
+							</Typography>
+							<ButtonGroup>
+								<Button
+									onClick={() => setSubmitData(true)}
+									disabled={
+										dossier < 0 ||
+										day === 0 ||
+										month === 0 ||
+										year === 0 ||
+										dose === 0 ||
+										dose === ''
+									}
+									variant='contained'
+									startIcon={<Save />}>
+									ذخیره
+								</Button>
+								<Button
+									onClick={() =>
+										navigate(
+											dossier_id
+												? '/dossier/' + dossier_id
+												: '/receptions'
+										)
+									}
+									variant='outlined'
+									startIcon={<Redo />}>
+									بازگشت
+								</Button>
+							</ButtonGroup>
+						</Box>
+					</Grid>
+					<Grid
+						item
+						xs={4}>
 						{!dossier_id && (
 							<Autocomplete
 								size='small'
@@ -205,6 +258,7 @@ const NewReception = () => {
 						)}
 						{dossier_id && (
 							<TextField
+								fullWidth
 								disabled
 								size='small'
 								helperText='پرونده منتخب'
@@ -216,7 +270,7 @@ const NewReception = () => {
 								marginTop: 1,
 								marginBottom: 1,
 								display: 'flex',
-								gap: 2,
+								gap: 1,
 								alignItems: 'center',
 								justifyContent: 'space-between',
 							}}>
@@ -265,6 +319,7 @@ const NewReception = () => {
 							</Select>
 						</Box>
 						<TextField
+							fullWidth
 							size='small'
 							label='مقدار تجویز'
 							value={parseInt(dose) || ''}
@@ -276,33 +331,22 @@ const NewReception = () => {
 								)
 							}
 						/>
-						<Button
-							onClick={() => setSubmitData(true)}
-							disabled={
-								dossier < 0 ||
-								day === 0 ||
-								month === 0 ||
-								year === 0 ||
-								dose === 0
-							}
-							variant='contained'
-							startIcon={<Save />}>
-							ذخیره
-						</Button>
-						<Button
-							onClick={() =>
-								navigate(
-									dossier_id
-										? '/dossier/' + dossier_id
-										: '/receptions'
-								)
-							}
-							variant='outlined'
-							startIcon={<Redo />}>
-							بازگشت
-						</Button>
-					</Box>
-				</Box>
+					</Grid>
+					<Grid
+						item
+						xs={8}>
+						<TextField
+							multiline
+							fullWidth
+							label='توضیحات'
+							minRows={12}
+							maxRows={12}
+							value={description}
+							onChange={e => setDescription(e.target.value)}
+							helperText='درج توضیحات اختیاری است.'
+						/>
+					</Grid>
+				</Grid>
 			</Fade>
 		</>
 	);

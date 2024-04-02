@@ -43,8 +43,16 @@ enum Gender {
   Female
 }
 
+enum TransactionType {
+  NewShipment
+  NewReception
+  SystemModification
+}
+
 model User {
   id          Int           @id @default(autoincrement())
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
   firstName   String
   lastName    String
   username    String        @unique
@@ -55,10 +63,12 @@ model User {
 }
 
 model AccessToken {
-  id     Int    @id @default(autoincrement())
-  userId Int
-  user   User   @relation(fields: [userId], references: [id])
-  hashed String
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  hashed    String
 }
 
 enum DrugType {
@@ -69,6 +79,8 @@ enum DrugType {
 
 model Patient {
   id         Int          @id @default(autoincrement())
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
   firstName  String
   lastName   String
   birthDate  DateTime
@@ -83,6 +95,8 @@ model Patient {
 
 model Attachment {
   id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   title       String
   fileAddress String
   dossier     Dossier? @relation(fields: [dossierId], references: [id], onDelete: Cascade)
@@ -93,6 +107,8 @@ model Attachment {
 
 model Dossier {
   id            Int          @id @default(autoincrement())
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
   patient       Patient?     @relation(fields: [patientId], references: [id], onDelete: Cascade)
   patientId     Int
   drugType      DrugType
@@ -104,30 +120,39 @@ model Dossier {
 }
 
 model Reception {
-  id        Int      @id @default(autoincrement())
-  datetime  DateTime @default(now())
-  dossier   Dossier? @relation(fields: [dossierId], references: [id], onDelete: Cascade)
-  dossierId Int?
-  drugDose  Int
+  id          Int                 @id @default(autoincrement())
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  datetime    DateTime            @default(now())
+  dossier     Dossier?            @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  dossierId   Int?
+  drugDose    Int
+  description String?             @db.VarChar(4096)
+  transaction StorageTransaction?
 }
 
 model Settings {
   id    Int     @id @default(autoincrement())
-  name  String
+  name  String  @unique
   value String?
 }
 
 model Storage {
-  id       Int      @id @default(autoincrement())
-  drug     DrugType
-  quantity Int
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  drug      DrugType @unique
+  quantity  Int
 }
 
 model StorageTransaction {
-  id         Int      @id @default(autoincrement())
-  date       DateTime
-  drug       DrugType
-  quantity   Int
-  prevAmount Int
-  currAmount Int
+  id          Int             @id @default(autoincrement())
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  date        DateTime
+  drug        DrugType
+  quantity    Int
+  reception   Reception?      @relation(fields: [receptionId], references: [id], onDelete: Cascade)
+  receptionId Int?            @unique
+  type        TransactionType
 }
