@@ -81,7 +81,11 @@ export async function deletePatient(req, res) {
 				dossier: {
 					include: {
 						attachments: true,
-						records: true,
+						records: {
+							include: {
+								transaction: true,
+							},
+						},
 					},
 				},
 			},
@@ -92,6 +96,10 @@ export async function deletePatient(req, res) {
 			await prisma.attachment.delete({ where: { id: a.id } });
 		});
 
+		let deltaMetadon = 0,
+			deltaOpium = 0,
+			deltaB2 = 0;
+
 		patient.dossier.forEach(async dossier => {
 			dossier.attachments.forEach(async a => {
 				await fs.unlink(path.join('attachments', a.fileAddress));
@@ -99,11 +107,55 @@ export async function deletePatient(req, res) {
 			});
 
 			dossier.records.forEach(async rec => {
+				switch (rec.transaction.drug) {
+					case 'Metadon':
+						deltaMetadon += parseInt(rec.transaction.quantity);
+						break;
+					case 'Opium':
+						deltaOpium += parseInt(rec.transaction.quantity);
+						break;
+					default:
+						deltaB2 += parseInt(rec.transaction.quantity);
+						break;
+				}
+
+				await prisma.storageTransaction.delete({
+					where: { id: rec.transaction.id },
+				});
+
 				await prisma.reception.delete({ where: { id: rec.id } });
 			});
 
 			await prisma.dossier.delete({ where: { id: dossier.id } });
 		});
+
+		deltaB2 !== 0 &&
+			(await prisma.storage.update({
+				where: { drug: 'B2' },
+				data: {
+					quantity: {
+						increment: parseInt(deltaB2),
+					},
+				},
+			}));
+		deltaMetadon !== 0 &&
+			(await prisma.storage.update({
+				where: { drug: 'Metadon' },
+				data: {
+					quantity: {
+						increment: parseInt(deltaMetadon),
+					},
+				},
+			}));
+		deltaOpium !== 0 &&
+			(await prisma.storage.update({
+				where: { drug: 'Opium' },
+				data: {
+					quantity: {
+						increment: parseInt(deltaOpium),
+					},
+				},
+			}));
 
 		await prisma.patient.delete({ where: { id: patient.id } });
 
