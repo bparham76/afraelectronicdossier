@@ -8,6 +8,7 @@ import { useState, useEffect, useRef, useReducer } from 'react';
 import { useNotify, useOkCancelDialog } from '../services/NotificationSystem';
 import { useAuthState } from '../services/auth/AuthenticationSystem';
 import { storageReducer, storageData } from '../services/data/storage';
+import EditUser from '../components/EditUser';
 
 const Settings = () => {
 	const navigate = useNavigate();
@@ -21,17 +22,24 @@ const Settings = () => {
 	const [capacity, dispatch] = useReducer(storageReducer, storageData);
 	const [canUpdateStorage, setCanUpdateStorage] = useState(false);
 	const [submitStorageData, setSubmitStorageData] = useState(false);
+	const [editUser, setEditUser] = useState(-1);
 
 	useEffect(() => {
 		capacityRef.current = storageData;
 	}, []);
 
-	const handleShowUser = id =>
+	const handleShowEditUser = id =>
 		showDialog({
 			title: 'ویرایش کاربر',
 			caption: 'آیا مایل به ویرایش کاربر هستید؟',
-			onAccept: () => navigate('/settings/user/' + id),
+			onAccept: () => setEditUser(id),
 		});
+
+	const handleDeleteUser = () =>
+		showDialog({ title: '', caption: '', onAccept: () => {} });
+
+	const handleEditUser = () =>
+		showDialog({ title: '', caption: '', onAccept: () => {} });
 
 	const handleCancelUpdateStorage = () =>
 		showDialog({
@@ -51,8 +59,6 @@ const Settings = () => {
 				setSubmitStorageData(true);
 				capacityRef.current = capacity;
 			},
-			// onReject: () =>
-			// 	dispatch({ type: 'full', payload: capacityRef.current }),
 		});
 
 	useEffect(() => {
@@ -171,6 +177,12 @@ const Settings = () => {
 	return (
 		<>
 			<LoadingOverlay open={isUsersLoading || isStorageLoading} />
+			<EditUser
+				userId={editUser}
+				onClose={() => setEditUser(-1)}
+				onDelete={handleDeleteUser}
+				onSubmit={handleEditUser}
+			/>
 			<Fade
 				in={true}
 				unmountOnExit>
@@ -338,7 +350,7 @@ const Settings = () => {
 							header={gridHeader}
 							data={usersData}
 							height='50vh'
-							onRowClick={e => handleShowUser(e.id)}
+							onRowClick={e => handleShowEditUser(e.id)}
 						/>
 					</Grid>
 				</Grid>

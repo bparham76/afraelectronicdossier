@@ -33,6 +33,11 @@ const NewReception = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [isSearchLoading, setIsSearchLoading] = useState(false);
 	const [dossierList, setDossierList] = useState(emptyList);
+	// const [quantity, setQuantity] = useState([
+	// 	{ drug: 'Metadon', quantity: 0 },
+	// 	{ drug: 'B2', quantity: 0 },
+	// 	{ drug: 'Opium', quantity: 0 },
+	// ]);
 	const [dossier, setDossier] = useState(-1);
 	const [day, setDay] = useState(0);
 	const [month, setMonth] = useState(0);
@@ -44,9 +49,23 @@ const NewReception = () => {
 	const dossier_id = useSearchParams()[0].get('dossier_id');
 	const [singleDossier, setSingleDossier] = useState(null);
 	const [description, setDescription] = useState('');
+	const [canSubmit, setCanSubmit] = useState(false);
 
 	//TODO: get storage information
 	//TODO: get patient restictions based on dose and date
+
+	useEffect(() => {
+		if (
+			dossier < 0 ||
+			day === 0 ||
+			month === 0 ||
+			year === 0 ||
+			dose === 0 ||
+			dose === ''
+		)
+			setCanSubmit(true);
+		else setCanSubmit(false);
+	}, [dose, dossier, day, month, year]);
 
 	const execSearch = useCallback(async () => {
 		try {
@@ -118,10 +137,19 @@ const NewReception = () => {
 					}
 				);
 				if (response.status < 400) {
-					notify({ msg: 'ثبت مراجعه با موفقیت انجام شد.' });
-					navigate(
-						dossier_id ? '/dossier/' + dossier_id : '/receptions'
-					);
+					if (response.data.msg === 'insufficient') {
+						notify({
+							type: 'error',
+							msg: 'موجودی انبار برای تحویل دارو کافی نیست.',
+						});
+					} else {
+						notify({ msg: 'ثبت مراجعه با موفقیت انجام شد.' });
+						navigate(
+							dossier_id
+								? '/dossier/' + dossier_id
+								: '/receptions'
+						);
+					}
 				}
 			} catch (error) {
 				notify({
@@ -174,6 +202,23 @@ const NewReception = () => {
 			}
 		};
 
+		// const getQuantity = async () => {
+		// 	try {
+		// 		const response = await axios.get('/dossier/quantity', {
+		// 			headers: { Authorization: 'Bearer ' + token },
+		// 		});
+		// 		if (response.status < 400) setQuantity(response.data.data);
+		// 	} catch (error) {
+		// 		notify({
+		// 			type: 'error',
+		// 			msg: 'خطا در برقراری ارتباط با سرور.',
+		// 		});
+		// 	} finally {
+		// 		setIsLoading(false);
+		// 	}
+		// };
+
+		// getQuantity();
 		getDossier();
 	}, []);
 
@@ -205,14 +250,7 @@ const NewReception = () => {
 							<ButtonGroup>
 								<Button
 									onClick={() => setSubmitData(true)}
-									disabled={
-										dossier < 0 ||
-										day === 0 ||
-										month === 0 ||
-										year === 0 ||
-										dose === 0 ||
-										dose === ''
-									}
+									disabled={canSubmit}
 									variant='contained'
 									startIcon={<Save />}>
 									ذخیره

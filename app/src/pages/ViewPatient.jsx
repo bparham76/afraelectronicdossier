@@ -673,12 +673,14 @@ const ViewPatient = () => {
 								fontWeight='bold'>
 								پیوست ها
 							</Typography>
-							<Button
-								onClick={handleAddAttachment}
-								startIcon={<Add />}
-								variant='outlined'>
-								افزودن
-							</Button>
+							<Collapse in={!isEdit}>
+								<Button
+									onClick={handleAddAttachment}
+									startIcon={<Add />}
+									variant='outlined'>
+									افزودن
+								</Button>
+							</Collapse>
 						</Box>
 						<DataTable
 							height='50vh'

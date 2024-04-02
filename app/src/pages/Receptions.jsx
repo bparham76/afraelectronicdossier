@@ -1,13 +1,14 @@
 import { Fade, Typography, Grid, Button, ButtonGroup } from '@mui/material';
-import { Home, Add, Search } from '@mui/icons-material';
+import { Home, Add, Search, Close } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import DataTable from '../components/DataTable';
 import LoadingOverlay from '../components/LoadingOverlay';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useReducer } from 'react';
 import SearchByDate from '../components/SearchByDate';
 import { useAuthState } from '../services/auth/AuthenticationSystem';
 import { useNotify, useOkCancelDialog } from '../services/NotificationSystem';
 import axios from 'axios';
+import { searchDateData, searchDateReducer } from '../services/data/dateSearch';
 
 const Receptions = () => {
 	const navigate = useNavigate();
@@ -16,14 +17,12 @@ const Receptions = () => {
 	const { token } = useAuthState();
 	const [isLoading, setIsLoading] = useState(true);
 	const [data, setData] = useState([]);
-	const [searchString, setSearchString] = useState('');
+	const [execSearch, setExecSearch] = useState(false);
+	const [search, dispatch] = useReducer(searchDateReducer, searchDateData);
 	const [showSearchDialog, setShowSearchDialog] = useState(false);
-	const handleShowSearch = () => setShowSearchDialog(true);
+	const handleShowSearch = () =>
+		execSearch ? setExecSearch(false) : setShowSearchDialog(true);
 	const handleHideSearch = () => setShowSearchDialog(false);
-	const handleCommitSearch = () => {
-		alert(searchString);
-		setIsLoading(true);
-	};
 
 	const handleRowClick = params => navigate('/reception/' + params.row.id);
 
@@ -134,8 +133,10 @@ const Receptions = () => {
 	];
 
 	useEffect(() => {
+		if (execSearch) return;
 		const getData = async () => {
 			try {
+				setIsLoading(true);
 				const response = await axios.get('/reception', {
 					headers: { Authorization: 'Bearer ' + token },
 				});
@@ -151,13 +152,42 @@ const Receptions = () => {
 			}
 		};
 		getData();
-	}, []);
+	}, [execSearch]);
+
+	useEffect(() => {
+		if (!execSearch) {
+			dispatch({ type: 'clear' });
+			return;
+		}
+		const exec = async () => {
+			try {
+				setIsLoading(true);
+				const response = await axios.post('/reception/s', search, {
+					headers: {
+						Authorization: 'Bearer ' + token,
+					},
+				});
+				if (response.status < 400) setData(response.data.data);
+			} catch (error) {
+				notify({
+					type: 'error',
+					msg: 'خطا در برقراری ارتباط با سرور. جستجو انجام نشد.',
+				});
+			} finally {
+				setIsLoading(false);
+			}
+		};
+		exec();
+	}, [execSearch]);
 
 	return (
 		<>
 			<SearchByDate
 				open={showSearchDialog}
 				onClose={handleHideSearch}
+				dateData={search}
+				dateDispatch={dispatch}
+				onSubmit={() => setExecSearch(true)}
 			/>
 			<Fade
 				in={true}
@@ -175,7 +205,7 @@ const Receptions = () => {
 						<Typography
 							variant='h4'
 							fontWeight='bold'>
-							مراجعات
+							{execSearch ? 'جستجو در مراجعات' : 'مراجعات'}
 						</Typography>
 						<ButtonGroup>
 							<Button
@@ -189,8 +219,8 @@ const Receptions = () => {
 								onClick={handleShowSearch}
 								size='small'
 								variant='outlined'
-								startIcon={<Search />}>
-								جستجو
+								startIcon={execSearch ? <Close /> : <Search />}>
+								{execSearch ? 'نمایش لیست اصلی' : 'جستجو'}
 							</Button>
 							<Button
 								onClick={() => navigate('/')}

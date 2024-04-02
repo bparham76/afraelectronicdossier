@@ -450,3 +450,20 @@ export async function chageDossierState(req, res) {
 		return;
 	}
 }
+
+export async function checkStorageQuantity(req, res) {
+	try {
+		const storage = await prisma.storage.findMany({
+			select: {
+				drug: true,
+				quantity: true,
+			},
+		});
+		res.status(200).json({ data: storage });
+	} catch (error) {
+		console.log(error);
+		res.status(500).json();
+	} finally {
+		return;
+	}
+}

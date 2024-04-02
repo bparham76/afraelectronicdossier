@@ -12,7 +12,6 @@ import ViewDossier from '../../pages/ViewDossier';
 import ViewReception from '../../pages/ViewReception';
 import NewReception from '../../pages/NewReception';
 import NewUser from '../../pages/NewUser';
-import EditUser from '../../pages/EditUser';
 import ShipmentEntry from '../../pages/ShipmentEntry';
 import StorageReport from '../../pages/StorageReport';
 import NewAttachment from '../../pages/NewAttachment';
@@ -112,10 +111,6 @@ export const superAdminRoutes = [
 	{
 		path: '/settings/user/new',
 		element: <NewUser />,
-	},
-	{
-		path: '/settings/user/:id',
-		element: <EditUser />,
 	},
 	{
 		path: '/attachment/:id/:type',

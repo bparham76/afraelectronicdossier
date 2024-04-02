@@ -2,8 +2,6 @@ import prisma from '../utils/prisma.js';
 import moment from 'jalali-moment';
 
 export async function createReception(req, res) {
-	//TODO: check for storage
-	//TODO: create storage transaction
 	try {
 		const { dossier, day, month, year, dose, description } = req.body;
 
@@ -15,7 +13,7 @@ export async function createReception(req, res) {
 		const _storage = await prisma.storage.findMany();
 
 		if (_storage.find(s => s.drug === _dossier.drugType).quantity < dose) {
-			res.status(500).json({ error: 'insufficient quantity' });
+			res.status(200).json({ msg: 'insufficient' });
 			return;
 		}
 
@@ -226,6 +224,97 @@ export async function deleteReception(req, res) {
 
 		await prisma.reception.delete({ where: { id: parseInt(id) } });
 		res.status(202).json();
+	} catch (error) {
+		console.log(error);
+		res.status(500).json();
+	} finally {
+		return;
+	}
+}
+
+export async function searchReception(req, res) {
+	try {
+		const { isRange, month, day, year, toDay, toMonth, toYear } = req.body;
+		let result = null;
+		if (isRange)
+			result = await prisma.reception.findMany({
+				orderBy: {
+					datetime: 'desc',
+				},
+				select: {
+					id: true,
+					drugDose: true,
+					datetime: true,
+					dossier: {
+						select: {
+							dossierNumber: true,
+							drugType: true,
+							patient: {
+								select: {
+									firstName: true,
+									lastName: true,
+								},
+							},
+						},
+					},
+				},
+				where: {
+					datetime: {
+						gte: moment
+							.from(`${year}/${month}/${day}`, 'fa', 'YYYY/M/D')
+							.toISOString(),
+						lte: moment
+							.from(
+								`${toYear}/${toMonth}/${toDay}`,
+								'fa',
+								'YYYY/M/D'
+							)
+							.toISOString(),
+					},
+				},
+			});
+		else
+			result = await prisma.reception.findMany({
+				orderBy: {
+					datetime: 'desc',
+				},
+				select: {
+					id: true,
+					drugDose: true,
+					datetime: true,
+					dossier: {
+						select: {
+							dossierNumber: true,
+							drugType: true,
+							patient: {
+								select: {
+									firstName: true,
+									lastName: true,
+								},
+							},
+						},
+					},
+				},
+				where: {
+					datetime: moment
+						.from(`${year}/${month}/${day}`, 'fa', 'YYYY/M/D')
+						.toISOString(),
+				},
+			});
+
+		res.status(202).json({
+			data: result.map(r => ({
+				date: moment.from(r.datetime, 'en').format('jYYYY/jM/jD'),
+				id: r.id,
+				name:
+					r.dossier.patient.firstName +
+					' ' +
+					r.dossier.patient.lastName,
+				number: r.dossier.dossierNumber,
+				dose: r.drugDose,
+				drug: r.dossier.drugType,
+			})),
+		});
 	} catch (error) {
 		console.log(error);
 		res.status(500).json();

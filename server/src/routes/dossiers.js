@@ -13,6 +13,7 @@ import {
 	updateDossier,
 	chageDossierState,
 	deleteDossier,
+	checkStorageQuantity,
 } from '../services/dossiers.js';
 
 const dossierRouter = express.Router();
@@ -29,6 +30,7 @@ dossierRouter.get('/s/s/:query', findDossierForNewReception);
 dossierRouter.get('/capacity', checkDrugCapacity);
 dossierRouter.post('/capacity', setDrugCapacity);
 dossierRouter.get('/capacity/dossier', checkDossierCapacity);
+dossierRouter.get('/quantity', checkStorageQuantity);
 dossierRouter.delete('/:id', deleteDossier);
 
 export default dossierRouter;

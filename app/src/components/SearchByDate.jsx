@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
 	Dialog,
 	DialogTitle,
@@ -16,8 +16,33 @@ import {
 
 import { months } from '../data/calendar';
 
-const SearchByDate = ({ open = false, onClose }) => {
-	const [isRange, setIsRange] = useState(false);
+const SearchByDate = ({
+	open = false,
+	onClose,
+	dateData,
+	dateDispatch,
+	onSubmit,
+}) => {
+	const [canSubmit, setCanSubmit] = useState(false);
+
+	useEffect(() => {
+		if (!dateData.isRange) {
+			if (dateData.year > 0 && dateData.month > 0 && dateData.day > 0)
+				setCanSubmit(true);
+			else setCanSubmit(false);
+		} else {
+			if (
+				dateData.year > 0 &&
+				dateData.month > 0 &&
+				dateData.day > 0 &&
+				dateData.toYear >= dateData.year &&
+				dateData.toMonth > 0 &&
+				dateData.toDay > 0
+			)
+				setCanSubmit(true);
+			else setCanSubmit(false);
+		}
+	}, [dateData]);
 
 	return (
 		<Dialog
@@ -37,14 +62,19 @@ const SearchByDate = ({ open = false, onClose }) => {
 					<Typography variant='body1'>
 						جستجو بر اساس بازه تاریخی
 						<Switch
-							checked={isRange}
+							checked={dateData.isRange}
 							defaultChecked={false}
-							onChange={e => setIsRange(e.target.checked)}
+							onChange={e =>
+								dateDispatch({
+									type: 'isRange',
+									payload: e.target.checked,
+								})
+							}
 						/>
 					</Typography>
 				</DialogContentText>
 				<Collapse
-					in={isRange}
+					in={dateData.isRange}
 					unmountOnExit>
 					<Typography variant='body1'>از تاریخ:</Typography>
 				</Collapse>
@@ -59,9 +89,15 @@ const SearchByDate = ({ open = false, onClose }) => {
 					}}>
 					<Select
 						style={{ width: 100 }}
-						defaultValue={0}>
+						value={dateData.day}
+						onChange={e =>
+							dateDispatch({
+								type: 'day',
+								payload: e.target.value,
+							})
+						}>
 						<MenuItem value={0}>روز</MenuItem>
-						{[...new Array(30)].map((_, i) => (
+						{[...new Array(31)].map((_, i) => (
 							<MenuItem
 								value={i + 1}
 								key={i}>
@@ -71,7 +107,13 @@ const SearchByDate = ({ open = false, onClose }) => {
 					</Select>
 					<Select
 						style={{ width: 100 }}
-						defaultValue={0}>
+						value={dateData.month}
+						onChange={e =>
+							dateDispatch({
+								type: 'month',
+								payload: e.target.value,
+							})
+						}>
 						<MenuItem value={0}>ماه</MenuItem>
 						{months.map(m => (
 							<MenuItem
@@ -83,7 +125,13 @@ const SearchByDate = ({ open = false, onClose }) => {
 					</Select>
 					<Select
 						style={{ width: 100 }}
-						defaultValue={0}>
+						value={dateData.year}
+						onChange={e =>
+							dateDispatch({
+								type: 'year',
+								payload: e.target.value,
+							})
+						}>
 						<MenuItem value={0}>سال</MenuItem>
 						{[...new Array(50)].map((_, i) => (
 							<MenuItem
@@ -94,7 +142,7 @@ const SearchByDate = ({ open = false, onClose }) => {
 						))}
 					</Select>
 				</Box>
-				<Collapse in={isRange}>
+				<Collapse in={dateData.isRange}>
 					<Typography variant='body1'>تا تاریخ:</Typography>
 					<Box
 						sx={{
@@ -106,9 +154,15 @@ const SearchByDate = ({ open = false, onClose }) => {
 						}}>
 						<Select
 							style={{ width: 100 }}
-							defaultValue={0}>
+							value={dateData.toDay}
+							onChange={e =>
+								dateDispatch({
+									type: 'toDay',
+									payload: e.target.value,
+								})
+							}>
 							<MenuItem value={0}>روز</MenuItem>
-							{[...new Array(30)].map((_, i) => (
+							{[...new Array(31)].map((_, i) => (
 								<MenuItem
 									value={i + 1}
 									key={i}>
@@ -118,7 +172,13 @@ const SearchByDate = ({ open = false, onClose }) => {
 						</Select>
 						<Select
 							style={{ width: 100 }}
-							defaultValue={0}>
+							value={dateData.toMonth}
+							onChange={e =>
+								dateDispatch({
+									type: 'toMonth',
+									payload: e.target.value,
+								})
+							}>
 							<MenuItem value={0}>ماه</MenuItem>
 							{months.map(m => (
 								<MenuItem
@@ -130,7 +190,13 @@ const SearchByDate = ({ open = false, onClose }) => {
 						</Select>
 						<Select
 							style={{ width: 100 }}
-							defaultValue={0}>
+							value={dateData.toYear}
+							onChange={e =>
+								dateDispatch({
+									type: 'toYear',
+									payload: e.target.value,
+								})
+							}>
 							<MenuItem value={0}>سال</MenuItem>
 							{[...new Array(30)].map((_, i) => (
 								<MenuItem
@@ -146,7 +212,11 @@ const SearchByDate = ({ open = false, onClose }) => {
 			<DialogActions>
 				<Button onClick={onClose}>بستن</Button>
 				<Button
-					disabled
+					onClick={() => {
+						onClose();
+						onSubmit();
+					}}
+					disabled={!canSubmit}
 					variant='contained'>
 					جستجو
 				</Button>

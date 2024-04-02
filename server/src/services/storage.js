@@ -99,6 +99,43 @@ export async function getStorageReport(req, res) {
 
 export async function getStorageTransactions(req, res) {
 	try {
+		const result = await prisma.storageTransaction.findMany({
+			orderBy: { date: 'desc' },
+			include: {
+				reception: {
+					select: {
+						dossier: {
+							select: {
+								dossierNumber: true,
+								patient: {
+									select: {
+										firstName: true,
+										lastName: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		});
+		res.status(202).json({
+			data: result.map(item => {
+				const date = moment.from(item.date, 'en').format('jYYYY/jM/jD');
+				delete item.date;
+
+				if (item.type === 'NewShipment') return { ...item, date };
+
+				const patientName =
+					item.reception.dossier.patient.firstName +
+					' ' +
+					item.reception.dossier.patient.lastName;
+				const dossierNumber = item.reception.dossier.dossierNumber;
+				delete item.reception;
+
+				return { ...item, patientName, date, dossierNumber };
+			}),
+		});
 	} catch (error) {
 		console.log(error);
 		res.status(500).json();
