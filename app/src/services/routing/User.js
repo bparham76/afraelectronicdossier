@@ -1,23 +1,16 @@
 import Home from '../../pages/Home';
-import Settings from '../../pages/Settings';
 import Dossiers from '../../pages/Dossiers';
 import DossiersQueue from '../../pages/DossiersQueue';
 import Receptions from '../../pages/Receptions';
 import Patients from '../../pages/Patients';
-import Storage from '../../pages/Storage';
 import ViewPatient from '../../pages/ViewPatient';
 import NewPatient from '../../pages/NewPatient';
 import NewDossier from '../../pages/NewDossier';
 import ViewDossier from '../../pages/ViewDossier';
 import ViewReception from '../../pages/ViewReception';
 import NewReception from '../../pages/NewReception';
-import NewUser from '../../pages/NewUser';
-import ShipmentEntry from '../../pages/ShipmentEntry';
-import StorageReport from '../../pages/StorageReport';
-import NewAttachment from '../../pages/NewAttachment';
-import ViewReportChart from '../../pages/ViewReportChart';
 
-export const adminMenu = [
+export const userMenu = [
 	{
 		title: 'صفحه اصلی',
 		href: '/',
@@ -38,17 +31,9 @@ export const adminMenu = [
 		title: 'مراجعات',
 		href: '/receptions',
 	},
-	{
-		title: 'انبار',
-		href: '/storage',
-	},
-	{
-		title: 'تنظیمات',
-		href: '/settings',
-	},
 ];
 
-export const adminRoutes = [
+export const userRoutes = [
 	{
 		path: '/',
 		element: <Home />,
@@ -92,33 +77,5 @@ export const adminRoutes = [
 	{
 		path: '/reception/:id',
 		element: <ViewReception />,
-	},
-	{
-		path: '/storage',
-		element: <Storage />,
-	},
-	{
-		path: '/storage/report',
-		element: <StorageReport />,
-	},
-	{
-		path: '/storage/report/view',
-		element: <ViewReportChart />,
-	},
-	{
-		path: '/storage/entry',
-		element: <ShipmentEntry />,
-	},
-	{
-		path: '/settings',
-		element: <Settings />,
-	},
-	{
-		path: '/settings/user/new',
-		element: <NewUser />,
-	},
-	{
-		path: '/attachment/:id/:type',
-		element: <NewAttachment />,
 	},
 ];

@@ -7,9 +7,11 @@ import {
 } from '@mui/icons-material';
 import { Box, Button, Fade } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { useAuthState } from '../services/auth/AuthenticationSystem';
 
 const ItemContainer = ({ children, href }) => {
 	const navigate = useNavigate();
+
 	const goTo = dest =>
 		setTimeout(() => {
 			navigate(dest);
@@ -33,6 +35,8 @@ const ItemContainer = ({ children, href }) => {
 };
 
 const Home = () => {
+	const { role } = useAuthState();
+
 	return (
 		<Fade in={true}>
 			<Box
@@ -53,14 +57,18 @@ const Home = () => {
 					<MeetingRoom style={{ scale: '200%' }} />
 					مراجعات
 				</ItemContainer>
-				<ItemContainer href='/storage'>
-					<Warehouse style={{ scale: '200%' }} />
-					انبار
-				</ItemContainer>
-				<ItemContainer href='/settings'>
-					<Settings style={{ scale: '200%' }} />
-					تنظیمات
-				</ItemContainer>
+				{(role === 'SuperAdmin' || role === 'Doctor') && (
+					<>
+						<ItemContainer href='/storage'>
+							<Warehouse style={{ scale: '200%' }} />
+							انبار
+						</ItemContainer>
+						<ItemContainer href='/settings'>
+							<Settings style={{ scale: '200%' }} />
+							تنظیمات
+						</ItemContainer>
+					</>
+				)}
 			</Box>
 		</Fade>
 	);

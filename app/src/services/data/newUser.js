@@ -12,6 +12,15 @@ export function userReducer(state, action) {
 			return { ...state, role: action.payload };
 		case 'state':
 			return { ...state, state: action.payload };
+		case 'init':
+			return {
+				firstName: action.payload?.firstName,
+				lastName: action.payload?.lastName,
+				username: action.payload?.username,
+				password: '',
+				role: action.payload?.role,
+				state: action.payload?.state,
+			};
 		default:
 			throw Error('User reducer: Invalid data entry.');
 	}

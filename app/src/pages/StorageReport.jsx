@@ -14,6 +14,7 @@ import { useNotify } from '../services/NotificationSystem';
 import LoadingOverlay from '../components/LoadingOverlay';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import StorageReportDatePicker from '../components/StorageReportDatePicker';
 
 const StorageReport = () => {
 	const navigate = useNavigate();
@@ -21,6 +22,7 @@ const StorageReport = () => {
 	const { token } = useAuthState();
 	const [isLoading, setIsLoading] = useState(true);
 	const [data, setData] = useState([]);
+	const [viewReport, setViewReport] = useState('none');
 
 	useEffect(() => {
 		const getData = async () => {
@@ -47,6 +49,10 @@ const StorageReport = () => {
 	return (
 		<>
 			<LoadingOverlay open={isLoading} />
+			<StorageReportDatePicker
+				view={viewReport}
+				onCancel={() => setViewReport('none')}
+			/>
 			<Fade
 				in={true}
 				unmountOnExit>
@@ -104,11 +110,13 @@ const StorageReport = () => {
 							</Typography>
 							<ButtonGroup>
 								<Button
+									onClick={() => setViewReport('month')}
 									size='small'
 									variant='outlined'>
 									گزارش ماهانه
 								</Button>
 								<Button
+									onClick={() => setViewReport('year')}
 									size='small'
 									variant='outlined'>
 									گزارش سالانه

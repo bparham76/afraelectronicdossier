@@ -90,6 +90,7 @@ export const useLogout = () => {
 				return true;
 			} else return false;
 		} catch {
+			setIsAuthenticated(false);
 			return false;
 		}
 	};

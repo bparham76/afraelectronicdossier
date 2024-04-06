@@ -21,7 +21,7 @@ import axios from 'axios';
 import { useOkCancelDialog, useNotify } from '../services/NotificationSystem';
 import { patientData, patientReducer } from '../services/data/newPatient';
 import { useAuthState } from '../services/auth/AuthenticationSystem';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import DataTable from '../components/DataTable';
 import { months } from '../data/calendar';
 import ViewAttachment from '../components/ViewAttachment';
@@ -41,6 +41,8 @@ const ViewPatient = () => {
 	const [showAttachment, setShowAttachment] = useState(false);
 	const [currentFile, setCurrentFile] = useState('');
 	const dialog = useOkCancelDialog();
+	const searchParams = useSearchParams();
+	const d_ref = searchParams[0].get('d_ref');
 
 	const handleGoEdit = () =>
 		isEdit && !canSubmit
@@ -70,7 +72,8 @@ const ViewPatient = () => {
 			onAccept: () => setSubmitData(true),
 		});
 
-	const handleReturnBack = () => navigate('/patients');
+	const handleReturnBack = () =>
+		navigate(d_ref ? '/dossier/' + d_ref : '/patients');
 
 	const handleAddAttachment = () =>
 		isEdit

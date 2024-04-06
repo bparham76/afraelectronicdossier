@@ -4,7 +4,8 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "dev": "node src/index.js"
+    "dev": "node src/index.js",
+    "reset": "npx prisma db push --force-reset --skip-generate && npx prisma db seed"
   },
   "dependencies": {
     "@prisma/client": "5.10.2",

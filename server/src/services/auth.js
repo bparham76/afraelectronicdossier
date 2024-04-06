@@ -85,4 +85,22 @@ export const getAllUsers = async (req, res) => {
 
 export const modifyUser = async (req, res) => {};
 
-export const removeUser = async (req, res) => {};
+export const removeUser = async (req, res) => {
+	try {
+		const { id } = req.params;
+		const user = await prisma.user.findFirst({
+			where: { id: parseInt(id) },
+			include: { AccessToken: { select: { id: true } } },
+		});
+		await prisma.accessToken.deleteMany({
+			where: { id: { in: user.AccessToken.map(i => i.id) } },
+		});
+		await prisma.user.delete({ where: { id: parseInt(id) } });
+		res.status(204).json();
+	} catch (error) {
+		console.log(error);
+		res.status(500).json();
+	} finally {
+		return;
+	}
+};

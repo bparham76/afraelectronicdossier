@@ -4,10 +4,8 @@ import AppHeader from '../../components/AppHeader';
 import ErrorPage from '../../pages/ErrorPage';
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom';
 import { useAuthState } from '../auth/AuthenticationSystem';
-import { superAdminMenu, superAdminRoutes } from './SuperAdmin';
-import { doctorMenu, doctorRoutes } from './Doctor';
-import { secretaryMenu, secretaryRoutes } from './Secretary';
 import { adminMenu, adminRoutes } from './Admin';
+import { userMenu, userRoutes } from './User';
 import NotificationSystem from '../NotificationSystem';
 
 const Router = () => {
@@ -16,12 +14,12 @@ const Router = () => {
 	const menu = useMemo(
 		() =>
 			role === 'SuperAdmin'
-				? superAdminMenu
+				? adminMenu
 				: role === 'Doctor'
-				? doctorMenu
+				? adminMenu
 				: role === 'Secretary'
-				? secretaryMenu
-				: role === 'Admin' && adminMenu,
+				? userMenu
+				: role === 'Admin' && userMenu,
 		[]
 	);
 
@@ -46,12 +44,12 @@ const Router = () => {
 					),
 					children:
 						role === 'SuperAdmin'
-							? superAdminRoutes
+							? adminRoutes
 							: role === 'Doctor'
-							? doctorRoutes
+							? adminRoutes
 							: role === 'Secretary'
-							? secretaryRoutes
-							: role === 'Admin' && adminRoutes,
+							? userRoutes
+							: role === 'Admin' && userRoutes,
 					errorElement: <ErrorPage />,
 				},
 			]),

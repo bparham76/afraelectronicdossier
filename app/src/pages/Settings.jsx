@@ -1,5 +1,5 @@
 import { Fade, Typography, Grid, Button, TextField, Box } from '@mui/material';
-import { Add, Home, Save } from '@mui/icons-material';
+import { Add, Home, Save, Delete, Edit } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import DataTable from '../components/DataTable';
 import LoadingOverlay from '../components/LoadingOverlay';
@@ -23,6 +23,7 @@ const Settings = () => {
 	const [canUpdateStorage, setCanUpdateStorage] = useState(false);
 	const [submitStorageData, setSubmitStorageData] = useState(false);
 	const [editUser, setEditUser] = useState(-1);
+	const [isUserDeleted, setIsUserDeleted] = useState(false);
 
 	useEffect(() => {
 		capacityRef.current = storageData;
@@ -32,11 +33,46 @@ const Settings = () => {
 		showDialog({
 			title: 'ویرایش کاربر',
 			caption: 'آیا مایل به ویرایش کاربر هستید؟',
-			onAccept: () => setEditUser(id),
+			onAccept: () =>
+				setTimeout(() => {
+					setEditUser(id);
+				}, 200),
 		});
 
-	const handleDeleteUser = () =>
-		showDialog({ title: '', caption: '', onAccept: () => {} });
+	const handleDeleteUser = id =>
+		showDialog({
+			title: 'توجه',
+			caption: `کاربر ${usersData.find(i => i.id === id).firstName} ${
+				usersData.find(i => i.id === id).lastName
+			} از سیستم حذف می شود.`,
+			onAccept: async () => {
+				try {
+					setIsUsersLoading(true);
+					const response = await axios.delete('/auth/user/' + id, {
+						headers: {
+							Authorization: 'Bearer ' + token,
+						},
+					});
+					if (response.status < 400) {
+						notify({
+							msg: `${
+								usersData.find(i => i.id === id).firstName
+							} ${
+								usersData.find(i => i.id === id).lastName
+							} از سیستم حذف شد.`,
+						});
+						setUsersData(data => data.filter(i => i.id !== id));
+					}
+				} catch (error) {
+					notify({
+						type: 'error',
+						msg: 'خطا در برقراری ارتباط با سرور. کاربر حذف نشد.',
+					});
+				} finally {
+					setIsUsersLoading(false);
+				}
+			},
+		});
 
 	const handleEditUser = () =>
 		showDialog({ title: '', caption: '', onAccept: () => {} });
@@ -174,14 +210,70 @@ const Settings = () => {
 		submitData();
 	}, [submitStorageData]);
 
+	const gridHeader = [
+		{
+			field: 'firstName',
+			headerName: 'نام',
+			width: 100,
+		},
+		,
+		{
+			field: 'lastName',
+			headerName: 'نام خانوادگی',
+			width: 100,
+		},
+		{
+			field: 'username',
+			headerName: 'نام کاربری',
+			width: 100,
+		},
+		{
+			field: 'role',
+			headerName: 'نقش',
+			width: 100,
+			valueGetter: v =>
+				v.value === 'Doctor'
+					? 'پزشک'
+					: v.value === 'Secretary'
+					? 'منشی'
+					: 'پشتیبان',
+		},
+		{
+			field: 'control',
+			headerName: '',
+			sortable: false,
+			disableClickEventBubbling: true,
+			width: 200,
+			renderCell: params =>
+				params.row.role !== 'SuperAdmin' && (
+					<>
+						<Button
+							size='small'
+							style={{ marginLeft: 2 }}
+							variant='outlined'
+							onClick={() => handleShowEditUser(params.row.id)}>
+							<Edit />
+						</Button>
+						<Button
+							size='small'
+							variant='outlined'
+							onClick={() => handleDeleteUser(params.row.id)}
+							color='error'>
+							<Delete />
+						</Button>
+					</>
+				),
+		},
+	];
+
 	return (
 		<>
 			<LoadingOverlay open={isUsersLoading || isStorageLoading} />
 			<EditUser
 				userId={editUser}
 				onClose={() => setEditUser(-1)}
-				onDelete={handleDeleteUser}
 				onSubmit={handleEditUser}
+				data={usersData.find(i => i.id === editUser)}
 			/>
 			<Fade
 				in={true}
@@ -350,7 +442,6 @@ const Settings = () => {
 							header={gridHeader}
 							data={usersData}
 							height='50vh'
-							onRowClick={e => handleShowEditUser(e.id)}
 						/>
 					</Grid>
 				</Grid>
@@ -360,38 +451,3 @@ const Settings = () => {
 };
 
 export default Settings;
-
-const gridHeader = [
-	{
-		field: 'id',
-		headerName: 'شماره',
-		width: 100,
-	},
-	{
-		field: 'firstName',
-		headerName: 'نام',
-		width: 100,
-	},
-	,
-	{
-		field: 'lastName',
-		headerName: 'نام خانوادگی',
-		width: 100,
-	},
-	{
-		field: 'username',
-		headerName: 'نام کاربری',
-		width: 100,
-	},
-	{
-		field: 'role',
-		headerName: 'نقش',
-		width: 100,
-		valueGetter: v =>
-			v.value === 'Doctor'
-				? 'پزشک'
-				: v.value === 'Secretary'
-				? 'منشی'
-				: 'پشتیبان',
-	},
-];

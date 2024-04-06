@@ -23,6 +23,7 @@ import {
 	DoneAll,
 	RemoveDone,
 	Save,
+	Launch,
 } from '@mui/icons-material';
 import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import DataTable from '../components/DataTable';
@@ -493,11 +494,26 @@ const ViewDossier = () => {
 					<Grid
 						item
 						xs={4}>
-						<Typography
-							variant='h6'
-							mb={1}>
-							مشخصات بیمار
-						</Typography>
+						<Box
+							sx={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: 1,
+								marginBottom: 1,
+							}}>
+							<Typography variant='h6'>مشخصات بیمار</Typography>
+							<Button
+								onClick={() =>
+									navigate(
+										'/patient/' +
+											data.patientId +
+											'?d_ref=' +
+											id
+									)
+								}>
+								<Launch />
+							</Button>
+						</Box>
 						<Table
 							size='small'
 							sx={{

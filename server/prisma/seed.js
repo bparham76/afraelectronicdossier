@@ -6,6 +6,8 @@ const prisma = new PrismaClient();
 
 import { fakerFA } from '@faker-js/faker';
 
+const DATA_COUNT = 120;
+
 const userData = [
 	{
 		firstName: 'پرهام',
@@ -38,15 +40,15 @@ const userData = [
 const storageData = [
 	{
 		drug: 'B2',
-		quantity: 30,
+		quantity: parseInt(DATA_COUNT / 3) * 10,
 	},
 	{
 		drug: 'Opium',
-		quantity: 24,
+		quantity: parseInt(DATA_COUNT / 3) * 10,
 	},
 	{
 		drug: 'Metadon',
-		quantity: 26,
+		quantity: parseInt(DATA_COUNT / 3) * 10,
 	},
 ];
 
@@ -61,129 +63,106 @@ const settingsData = [
 	},
 	{
 		name: 'cap_b2',
-		value: '5',
+		value: (parseInt(DATA_COUNT / 3) + 1).toString(),
 	},
 	{
 		name: 'cap_opium',
-		value: '5',
+		value: (parseInt(DATA_COUNT / 3) + 1).toString(),
 	},
 	{
 		name: 'cap_metadon',
-		value: '5',
-	},
-];
-
-const patientData = [
-	{
-		firstName: 'گلمراد',
-		lastName: 'مرجوئی',
-		birthDate: moment.from('1339/5/19', 'fa', 'YYYY/MM/DD').toISOString(),
-		nationalID: '2111512010',
-		address: 'سای',
-		phone: '09352114212',
-		landLine: '01133324587',
-		gender: 'Male',
-	},
-	{
-		firstName: 'رسول',
-		lastName: 'محترم',
-		birthDate: moment.from('1348/12/7', 'fa', 'YYYY/MM/DD').toISOString(),
-		nationalID: '0012452210',
-		address: 'تهران میدان آرژانتین	',
-		phone: '09120113614',
-		landLine: '02144325877',
-		gender: 'Male',
-	},
-	{
-		firstName: 'منصوره',
-		lastName: 'مقصودی نیا',
-		birthDate: moment.from('1361/7/13', 'fa', 'YYYY/MM/DD').toISOString(),
-		nationalID: '9092014785',
-		address: 'کرج',
-		phone: '09021142366',
-		landLine: '02154778758',
-		gender: 'Female',
-	},
-	{
-		firstName: 'مونا',
-		lastName: 'باباجانی',
-		birthDate: moment.from('1367/9/27', 'fa', 'YYYY/MM/DD').toISOString(),
-		nationalID: '0014225711',
-		address: 'تنکابن خرم آباد',
-		phone: '09352331458',
-		landLine: '01123665547',
-		gender: 'Female',
+		value: (parseInt(DATA_COUNT / 3) + 1).toString(),
 	},
 ];
 
 async function main() {
 	console.log(`Start seeding ...`);
-	for (const u of userData) {
-		const user = await prisma.user.create({
-			data: u,
-		});
-		console.log(`Created user with id: ${user.id}`);
-	}
-
-	for (const u of patientData) {
-		const user = await prisma.patient.create({
-			data: u,
-		});
-		console.log(`Created patient with id: ${user.id}`);
-	}
+	await prisma.user.createMany({ data: userData });
 
 	let male = true;
-	for (let i = 0; i < 20; i++) {
-		await prisma.patient.create({
-			data: {
-				firstName: fakerFA.person.firstName(male && 'male'),
-				lastName: fakerFA.person.lastName(),
-				nationalID: fakerFA.string.numeric({ length: 10 }),
-				phone: '09' + fakerFA.string.numeric({ length: 9 }),
-				landLine: '0' + fakerFA.string.numeric({ length: 10 }),
-				gender: male ? 'Male' : 'Female',
-				address: fakerFA.location
-					.streetAddress({
-						useFullAddress: true,
-					})
-					.toString(),
-				birthDate: fakerFA.date
-					.birthdate({
-						min: 1970,
-						max: 1992,
-						mode: 'year',
-					})
-					.toISOString(),
-			},
+	let patientData = [];
+	for (let i = 0; i < DATA_COUNT; i++) {
+		patientData.push({
+			firstName: fakerFA.person.firstName(male && 'male'),
+			lastName: fakerFA.person.lastName(),
+			nationalID: fakerFA.string.numeric({ length: 10 }),
+			phone: '09' + fakerFA.string.numeric({ length: 9 }),
+			landLine: '0' + fakerFA.string.numeric({ length: 10 }),
+			gender: male ? 'Male' : 'Female',
+			address: fakerFA.location
+				.streetAddress({
+					useFullAddress: true,
+				})
+				.toString(),
+			birthDate: fakerFA.date
+				.birthdate({
+					min: 1970,
+					max: 1992,
+					mode: 'year',
+				})
+				.toISOString(),
 		});
 		male = !male;
 	}
+	await prisma.patient.createMany({ data: patientData });
 
-	for (const u of storageData) {
-		const user = await prisma.storage.create({
-			data: u,
+	await prisma.storage.createMany({ data: storageData });
+
+	await prisma.settings.createMany({ data: settingsData });
+
+	let dossierData = [];
+	for (let i = 1; i <= DATA_COUNT; i++) {
+		dossierData.push({
+			patientId: i,
+			drugType: i % 3 == 1 ? 'B2' : i % 3 == 2 ? 'Metadon' : 'Opium',
+			dossierNumber: fakerFA.string.numeric({ length: 6 }),
+			state: 'Active',
 		});
-		console.log(`Created storage entry with id: ${user.id}`);
 	}
 
-	for (const u of settingsData) {
-		const user = await prisma.settings.create({
-			data: u,
-		});
-		console.log(`Created setting entry with id: ${user.id}`);
-	}
+	await prisma.dossier.createMany({ data: dossierData });
+
+	const ds = await prisma.dossier.findMany();
+
+	let receptions = [];
+	ds?.forEach(dossier => {
+		for (let j = 0; j < fakerFA.number.int({ min: 10, max: 20 }); j++) {
+			const _date = fakerFA.date
+				.between({
+					from: '2022-01-01T00:00:00.000Z',
+					to: '2024-03-29T00:00:00.000Z',
+				})
+				.toISOString();
+			const _dose = fakerFA.number.int({ min: 5, max: 25 });
+			receptions.push({
+				dossierId: dossier.id,
+				drugDose: _dose,
+				datetime: _date,
+				description: fakerFA.lorem.sentences({
+					min: 2,
+					max: 5,
+				}),
+			});
+		}
+	});
+
+	await prisma.reception.createMany({ data: receptions });
+
+	const rcps = await prisma.reception.findMany({
+		include: { dossier: true },
+	});
+
+	const transactions = rcps?.map(r => ({
+		date: r.datetime,
+		drug: r.dossier.drugType,
+		quantity: r.drugDose,
+		type: 'NewReception',
+		receptionId: r.id,
+	}));
+
+	await prisma.storageTransaction.createMany({ data: transactions });
+
 	console.log(`Seeding finished.`);
-
-	for (let i = 1; i <= 20; i++) {
-		await prisma.dossier.create({
-			data: {
-				patientId: i,
-				drugType: i % 3 == 1 ? 'B2' : i % 3 == 2 ? 'Metadon' : 'Opium',
-				dossierNumber: fakerFA.string.numeric({ length: 6 }),
-				state: 'Active',
-			},
-		});
-	}
 }
 
 main()

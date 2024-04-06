@@ -18,7 +18,7 @@ import { useColorScheme } from './Theme';
 import { useNavigate } from 'react-router-dom';
 import appData from '../data/app.json';
 
-const AppHeader = ({ user, menu }) => {
+const AppHeader = ({ menu }) => {
 	const commenceLogout = useLogout();
 	const [isDark, toggleColorScheme] = useColorScheme();
 	const [menuAnchor, setMenuAnchor] = useState(null);
@@ -32,8 +32,16 @@ const AppHeader = ({ user, menu }) => {
 		handleCloseMenu();
 	};
 
+	const logout = () => {
+		commenceLogout().then(() => {
+			navigate('/');
+		});
+	};
+
 	return (
-		<AppBar position='sticky'>
+		<AppBar
+			position='sticky'
+			className='print_hide'>
 			<Container>
 				<Toolbar disableGutters>
 					<Avatar
@@ -90,7 +98,7 @@ const AppHeader = ({ user, menu }) => {
 								sx={{
 									color: 'white',
 								}}
-								onClick={commenceLogout}>
+								onClick={logout}>
 								<Logout />
 							</IconButton>
 						</Tooltip>

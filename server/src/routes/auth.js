@@ -23,7 +23,7 @@ authRouter.use('/user', AuthMiddleware(['Doctor', 'SuperAdmin']));
 authRouter.get('/user', getUser);
 authRouter.get('/users', getAllUsers);
 authRouter.post('/user', createUser);
-authRouter.put('/user', modifyUser);
-authRouter.delete('/user', removeUser);
+authRouter.put('/user/:id', modifyUser);
+authRouter.delete('/user/:id', removeUser);
 
 export default authRouter;

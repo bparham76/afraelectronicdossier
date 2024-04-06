@@ -5,6 +5,7 @@ generator client {
 datasource db {
   provider = "mysql"
   url      = "mysql://afraadmin:@1234@localhost:3306/afrana"
+  // url      = "mysql://myafracl_afraadmin:N0hNGpKkNCF%@localhost:3306/myafracl_serverapp"
 }
 
 // model User {

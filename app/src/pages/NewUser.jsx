@@ -161,7 +161,7 @@ const NewUser = () => {
 							size='small'>
 							<MenuItem value='none'>-- نقش --</MenuItem>
 							<MenuItem value='Secretary'>منشی</MenuItem>
-							<MenuItem value='Doctor'>دکتر</MenuItem>
+							<MenuItem value='Doctor'>پزشک</MenuItem>
 						</Select>
 						<Select
 							value={data.state}

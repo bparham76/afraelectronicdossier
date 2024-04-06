@@ -31,27 +31,43 @@ const ViewReception = () => {
 		dialog({
 			title: 'توجه',
 			caption: 'رکورد مراجعه بیمار از سیستم حذف می شود.',
-			onAccept: async () => {
-				try {
-					setIsLoading(true);
-					const response = await axios.delete('/reception/' + id, {
-						headers: {
-							Authorization: 'Bearer ' + token,
-						},
-					});
-					if (response.status < 400) {
-						notify({ msg: 'رکورد مراجعه با موفقیت حذف شد.' });
-						handleReturn();
-					}
-				} catch (error) {
-					notify({
-						type: 'error',
-						msg: 'خطا در برقراری ارتباط با سرور.',
-					});
-				} finally {
-					setIsLoading(false);
-				}
-			},
+			onAccept: () =>
+				setTimeout(
+					() =>
+						dialog({
+							title: 'توجه',
+							caption:
+								'حذف رکورد مراجعه بر گزارش مصرف دارو و گزارش انبار تاثیرگذار خواهد بود.',
+							onAccept: async () => {
+								try {
+									setIsLoading(true);
+									const response = await axios.delete(
+										'/reception/' + id,
+										{
+											headers: {
+												Authorization:
+													'Bearer ' + token,
+											},
+										}
+									);
+									if (response.status < 400) {
+										notify({
+											msg: 'رکورد مراجعه با موفقیت حذف شد.',
+										});
+										handleReturn();
+									}
+								} catch (error) {
+									notify({
+										type: 'error',
+										msg: 'خطا در برقراری ارتباط با سرور.',
+									});
+								} finally {
+									setIsLoading(false);
+								}
+							},
+						}),
+					200
+				),
 		});
 
 	const handleReturn = () =>

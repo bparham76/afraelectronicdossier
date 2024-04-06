@@ -87,16 +87,6 @@ export async function deleteStorageEntry(req, res) {
 	}
 }
 
-export async function getStorageReport(req, res) {
-	try {
-	} catch (error) {
-		console.log(error);
-		res.status(500).json();
-	} finally {
-		return;
-	}
-}
-
 export async function getStorageTransactions(req, res) {
 	try {
 		const result = await prisma.storageTransaction.findMany({

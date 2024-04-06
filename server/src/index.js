@@ -7,6 +7,7 @@ import dossierRouter from './routes/dossiers.js';
 import attachmentsRouter from './routes/attachments.js';
 import receptionRouter from './routes/reception.js';
 import storageRouter from './routes/storage.js';
+import reportRouter from './routes/reports.js';
 
 const app = express();
 
@@ -20,5 +21,6 @@ app.use('/dossier', dossierRouter);
 app.use('/attachment', attachmentsRouter);
 app.use('/reception', receptionRouter);
 app.use('/storage', storageRouter);
+app.use('/report', reportRouter);
 
 const server = app.listen(4000, () => console.log('server running... .'));
