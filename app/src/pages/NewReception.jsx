@@ -86,7 +86,7 @@ const NewReception = () => {
 								? 'اوپیوم'
 								: d?.drugType === 'Metadon'
 								? 'متادون'
-								: 'B2'),
+								: 'بوپرو'),
 						id: d?.dossierNumber,
 					}))
 				);
@@ -189,7 +189,7 @@ const NewReception = () => {
 								? 'اوپیوم'
 								: response.data.data.drugType === 'Metadon'
 								? 'متادون'
-								: 'B2')
+								: 'بوپرو')
 					);
 				}
 			} catch (error) {

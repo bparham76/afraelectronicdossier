@@ -258,7 +258,7 @@ const NewDossier = () => {
 									<MenuItem value='none'>
 										-- داروی مصرفی --
 									</MenuItem>
-									<MenuItem value='B2'>B2</MenuItem>
+									<MenuItem value='B2'>بوپرو</MenuItem>
 									<MenuItem value='Metadon'>متادون</MenuItem>
 									<MenuItem value='Opium'>اوپیوم</MenuItem>
 								</Select>
@@ -287,7 +287,7 @@ const NewDossier = () => {
 											? ' متادون '
 											: drugType === 'Opium'
 											? ' اوپیوم '
-											: ' B2 '}
+											: ' بوپرو '}
 										تکمیل است.
 									</Typography>
 									<Typography variant='body1'>

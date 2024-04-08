@@ -64,7 +64,7 @@ const DossiersQueue = () => {
 					? 'متادون'
 					: v.value === 'Opium'
 					? 'اوپیوم'
-					: 'B2',
+					: 'بوپرو',
 		},
 		{
 			field: 'phone',

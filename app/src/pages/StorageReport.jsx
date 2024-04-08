@@ -151,7 +151,7 @@ const entryListHeader = [
 				? 'متادون'
 				: v.value === 'Opium'
 				? 'اوپیوم'
-				: 'B2',
+				: 'بوپرو',
 	},
 	{
 		field: 'quantity',
@@ -174,7 +174,7 @@ const consumeListHeader = [
 				? 'متادون'
 				: v.value === 'Opium'
 				? 'اوپیوم'
-				: 'B2',
+				: 'بوپرو',
 	},
 	{
 		field: 'quantity',

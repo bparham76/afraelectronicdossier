@@ -208,7 +208,7 @@ const ViewReception = () => {
 												case 'Metadon':
 													return 'متادون';
 												case 'B2':
-													return 'B2';
+													return 'بوپرو';
 												default:
 													return '';
 											}

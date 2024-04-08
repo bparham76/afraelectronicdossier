@@ -178,7 +178,7 @@ const ShipmentEntry = () => {
 						/>
 						<TextField
 							size='small'
-							label='مقدار B2'
+							label='مقدار بوپرو'
 							value={parseInt(data.B2) || ''}
 							onChange={e =>
 								dispatch({

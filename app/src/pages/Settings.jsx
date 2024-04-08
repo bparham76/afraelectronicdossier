@@ -345,7 +345,7 @@ const Settings = () => {
 								item
 								xs={4}>
 								<Typography variant='body1'>
-									تعداد پرونده B2
+									تعداد پرونده بوپرو
 								</Typography>
 							</Grid>
 							<Grid

@@ -568,7 +568,7 @@ const ViewDossier = () => {
 										{(() => {
 											switch (dataRef.current?.drugType) {
 												case 'B2':
-													return 'B2';
+													return 'بوپرو';
 												case 'Opium':
 													return 'اوپیوم';
 												case 'Metadon':

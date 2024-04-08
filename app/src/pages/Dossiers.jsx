@@ -239,7 +239,7 @@ const gridHeader = [
 				? 'متادون'
 				: v.value === 'Opium'
 				? 'اوپیوم'
-				: 'B2',
+				: 'بوپرو',
 	},
 	// {
 	// 	field: 'action',

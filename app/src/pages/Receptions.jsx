@@ -98,7 +98,7 @@ const Receptions = () => {
 					? 'متادون'
 					: v.value === 'Opium'
 					? 'اوپیوم'
-					: 'B2',
+					: 'بوپرو',
 		},
 		{
 			field: 'dose',
