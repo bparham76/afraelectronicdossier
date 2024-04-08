@@ -2,7 +2,12 @@ import { useMemo } from 'react';
 import { Container, Paper } from '@mui/material';
 import AppHeader from '../../components/AppHeader';
 import ErrorPage from '../../pages/ErrorPage';
-import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom';
+import {
+	createBrowserRouter,
+	createHashRouter,
+	Outlet,
+	RouterProvider,
+} from 'react-router-dom';
 import { useAuthState } from '../auth/AuthenticationSystem';
 import { adminMenu, adminRoutes } from './Admin';
 import { userMenu, userRoutes } from './User';
@@ -25,7 +30,7 @@ const Router = () => {
 
 	const router = useMemo(
 		() =>
-			createBrowserRouter([
+			createHashRouter([
 				{
 					path: '/',
 					element: (
